@@ -1,0 +1,20 @@
+# Caches
+__MACOSX/
+.DS_Store
+
+# Builds
+dist/
+
+# Modules
+node_modules/
+
+# Env
+.env.local
+.env.*.local
+.env.development
+.env.test
+.env.production
+
+# Logs
+*.log
+pnpm-debug.log*
