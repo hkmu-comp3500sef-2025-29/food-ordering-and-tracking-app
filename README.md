@@ -4,4 +4,4 @@ A food ordering and tracking app that allows users to place orders for food item
 
 ## Workflow
 
-For the workflow, please refer to [workflow.md](workflow.md).
+For the workflow, please refer to [workflow.md](./docs/workflow.md).
