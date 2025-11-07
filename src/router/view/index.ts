@@ -2,7 +2,7 @@ import type { Request, Response } from "express";
 
 import { Router } from "express";
 
-const router: Router = Router();
+const router: Router = Router({ mergeParams: true });
 
 router.get("/", async (_req: Request, res: Response): Promise<void> => {
     return res.render("home");

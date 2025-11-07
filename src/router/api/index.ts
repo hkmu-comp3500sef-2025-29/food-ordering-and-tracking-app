@@ -1,24 +1,23 @@
-import type { Request, Response } from "express";
-
-import { createJsonResponse } from "@jderstd/express";
+import type { NextFunction, Request, Response } from "express";
 import { Router } from "express";
+import { ConfigManager } from "#/configs/config.manager";
 
-import { routerApiSession } from "#/router/api/session";
+const apiversion = ConfigManager.getInstance().get("API_VERSION");
 
-const router: Router = Router();
+const router: Router = Router({ mergeParams: true });
 
-router.get("/", async (_req: Request, res: Response): Promise<Response> => {
-    return createJsonResponse(res);
+// api version check middleware
+router.use("/", (req: Request, res: Response, next: NextFunction) => {
+    if (req.params.version !== apiversion) {
+        return res.status(426).json({ success: false, error: 'API version mismatch' });
+    }
+    return next();
 });
 
-router.use("/sessions/", routerApiSession);
-
-router.get("/test", async (_req: Request, res: Response): Promise<Response> => {
-    return createJsonResponse(res, {
-        data: {
-            message: "Hello, World!",
-        },
-    });
+// Health check endpoint
+router.get("/health", async (_req: Request, res: Response): Promise<void> => {
+    res.status(200).json({ success: true });
 });
+
 
 export { router as routerApi };
