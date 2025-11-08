@@ -1,7 +1,8 @@
 import { ConfigManager } from "#/configs/config.manager";
+import { DatabaseManager } from "#/configs/database";
+import { logger } from "#/configs/logger";
 import { createApiKey } from "#/modules/apikey/apikey.repo";
 import { Staff } from "#/modules/staff/staff.schema";
-import { DatabaseManager } from "./database";
 
 const Config: ConfigManager = ConfigManager.getInstance();
 
@@ -14,7 +15,7 @@ export async function loadTrustedIps(): Promise<string[]> {
             "https://api.cloudflare.com/client/v4/ips",
         );
         if (!response.ok) {
-            console.warn(
+            logger.warn(
                 "Failed to fetch Cloudflare IPs, status:",
                 response.status,
             );
@@ -37,7 +38,7 @@ export async function loadTrustedIps(): Promise<string[]> {
         );
         return merged;
     } catch (err) {
-        console.warn("Error fetching Cloudflare IPs:", err);
+        logger.warn("Error fetching Cloudflare IPs:", err);
         return fallback;
     }
 }
@@ -64,18 +65,18 @@ export async function initDatabase(): Promise<void> {
                         [],
                         namedAdmin._id as any,
                     );
-                    console.log(
+                    logger.info(
                         `Created initial API key for existing admin '${initName}':`,
                         apiKey,
                     );
                 } catch (err) {
-                    console.error(
+                    logger.error(
                         `Failed to create API key for existing admin '${initName}':`,
                         err,
                     );
                 }
             } else {
-                console.info(
+                logger.info(
                     "Admin user(s) already exist; skipping initial admin creation.",
                 );
             }
@@ -85,8 +86,8 @@ export async function initDatabase(): Promise<void> {
                 name: initName,
             }).exec();
             if (existingByName > 0) {
-                console.warn(
-                    `Staff with name "${initName}" already exists. Will not elevate to admin for security reasons.`,
+                logger.error(
+                    `Staff with name "${initName}" already exists but is not an admin. Cannot elevate to admin for security reasons. System cannot proceed without an admin. Please resolve this conflict manually.`,
                 );
             } else {
                 // 3) Create an admin staff and an API key assigned to them
@@ -97,13 +98,13 @@ export async function initDatabase(): Promise<void> {
                 });
                 try {
                     const apiKey = await createApiKey([], created._id as any);
-                    console.log("Initial admin created:", initName);
-                    console.log(
+                    logger.info("Initial admin created:", initName);
+                    logger.info(
                         "Initial admin API key (store this securely):",
                         apiKey,
                     );
                 } catch (err) {
-                    console.error(
+                    logger.error(
                         "Failed to create API key for initial admin:",
                         err,
                     );

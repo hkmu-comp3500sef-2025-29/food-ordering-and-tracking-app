@@ -3,6 +3,7 @@ import type { NextFunction, Request, Response } from "express";
 import { Router } from "express";
 
 import { ConfigManager } from "#/configs/config.manager";
+import { apiLimiter } from "#/middlewares";
 import { routerV1 } from "#/router/api/v1";
 
 const configVersion = ConfigManager.getInstance().get("API_VERSION");
@@ -17,6 +18,9 @@ const versionRouters = new Map<string, Router>([
 const router: Router = Router({
     mergeParams: true,
 });
+
+// Apply general rate limiting to all API endpoints
+router.use(apiLimiter);
 
 router.use((req: Request, res: Response, next: NextFunction) => {
     const version = req.params.version ?? "";

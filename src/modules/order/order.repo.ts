@@ -5,6 +5,7 @@ import type { Param } from "#/modules/common/repo";
 import { ObjectId } from "mongodb";
 import { z } from "zod";
 
+import { logger } from "#/configs/logger";
 import {
     WithField,
     WithMongoId as WithMongoIdGeneric,
@@ -89,8 +90,8 @@ export async function createOrder(
         try {
             await p(config);
         } catch (err) {
-            console.warn("Error applying order param:", err);
-            console.warn("Skipping invalid param.");
+            logger.warn("Error applying order param:", err);
+            logger.warn("Skipping invalid param.");
         }
     }
 
@@ -114,8 +115,8 @@ export async function findOrder(
         try {
             await p(query);
         } catch (err) {
-            console.warn("Error applying order param:", err);
-            console.warn("Skipping invalid param.");
+            logger.warn("Error applying order param:", err);
+            logger.warn("Skipping invalid param.");
         }
     }
     return await Order.findOne(query as FilterQuery<OrderDocument>).exec();
@@ -130,8 +131,8 @@ export async function findOrders(
         try {
             await p(qPartial);
         } catch (err) {
-            console.warn("Error applying order param:", err);
-            console.warn("Skipping invalid param.");
+            logger.warn("Error applying order param:", err);
+            logger.warn("Skipping invalid param.");
         }
     }
 
@@ -255,8 +256,8 @@ export async function updateOrder(
         try {
             await p(query);
         } catch (err) {
-            console.warn("Error applying order param:", err);
-            console.warn("Skipping invalid param.");
+            logger.warn("Error applying order param:", err);
+            logger.warn("Skipping invalid param.");
         }
     }
     const doc = await Order.findOne(query as FilterQuery<OrderDocument>).exec();
@@ -289,8 +290,8 @@ export async function deleteOrder(params: OrderParam[]): Promise<{
         try {
             await p(query);
         } catch (err) {
-            console.warn("Error applying order param:", err);
-            console.warn("Skipping invalid param.");
+            logger.warn("Error applying order param:", err);
+            logger.warn("Skipping invalid param.");
         }
     }
     return Order.deleteOne(query as FilterQuery<OrderDocument>).exec();
@@ -326,8 +327,8 @@ export async function updateOrderDish(
         try {
             await p(criteria);
         } catch (err) {
-            console.warn("Error applying dish param:", err);
-            console.warn("Skipping invalid dish param.");
+            logger.warn("Error applying dish param:", err);
+            logger.warn("Skipping invalid dish param.");
         }
     }
 

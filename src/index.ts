@@ -11,7 +11,7 @@ import { initDatabase, loadTrustedIps } from "#/configs/root.init";
 import { PATH_PUBLIC, PATH_VIEWS } from "#/constants";
 import { requestContext, responseTimer } from "#/middlewares";
 import { router } from "#/router";
-import { isHttpError } from "#/utils/http-error";
+import { isHttpError } from "#/utils/error";
 
 const Config = ConfigManager.getInstance();
 
@@ -24,13 +24,18 @@ app.use(helmet());
 app.use(compression());
 app.use(httpLogger);
 
-// Core parsers
+// Core parsers with size limits to prevent DoS attacks
 app.use(
     express.urlencoded({
         extended: true,
+        limit: "10mb", // Limit request body size
     }),
 );
-app.use(express.json());
+app.use(
+    express.json({
+        limit: "10mb", // Limit JSON payload size
+    }),
+);
 app.use(cookieParser());
 
 app.set("view engine", "ejs");
@@ -46,10 +51,15 @@ app.use((err: Error, req: Request, res: Response, _next: NextFunction) => {
     if (isHttpError(err)) {
         const payload = {
             success: false,
-            error: err.code,
-            message: err.expose ? err.message : "Internal Server Error",
+            error: err.errorCode,
+            message: err.message ? err.message : "Internal Server Error",
             requestId: req.requestId,
         };
+        logger.warn(
+            "HTTP Error:",
+            payload,
+            err.errorDetails ? err.errorDetails : "",
+        );
         return res.status(err.statusCode).json(payload);
     }
     logger.error("Unhandled error:", err);

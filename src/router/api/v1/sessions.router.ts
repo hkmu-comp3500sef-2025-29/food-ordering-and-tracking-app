@@ -4,6 +4,7 @@ import { z } from "zod";
 import {
     apiKeyAuth,
     asyncHandler,
+    authLimiter,
     requireStaffRole,
     sessionContext,
 } from "#/middlewares";
@@ -20,7 +21,7 @@ import {
     findTable,
     WithTableId as WithTableByNumber,
 } from "#/modules/table/table.repo";
-import { errors } from "#/utils/http-error";
+import { httpErrors as errors } from "#/utils/error";
 
 const router: Router = Router({
     mergeParams: true,
@@ -108,6 +109,7 @@ router.get(
 
 router.post(
     "/",
+    authLimiter,
     apiKeyAuth(),
     requireStaffRole([
         "admin",

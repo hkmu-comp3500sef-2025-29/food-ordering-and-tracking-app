@@ -13,7 +13,7 @@ import {
     findSessions,
     WithUuid,
 } from "#/modules/session/session.repo";
-import { errors } from "#/utils/http-error";
+import { httpErrors as errors } from "#/utils/error";
 
 const router: Router = Router({
     mergeParams: true,

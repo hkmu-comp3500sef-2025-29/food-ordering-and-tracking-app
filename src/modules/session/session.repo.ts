@@ -6,6 +6,7 @@ import crypto from "node:crypto";
 import { ObjectId } from "mongodb";
 import { z } from "zod";
 
+import { logger } from "#/configs/logger";
 import {
     WithField,
     WithMongoId as WithMongoIdGeneric,
@@ -30,8 +31,8 @@ export async function createSession(
         try {
             await p(config);
         } catch (err) {
-            console.warn("Error applying session param:", err);
-            console.warn("Skipping invalid param.");
+            logger.warn("Error applying session param:", err);
+            logger.warn("Skipping invalid param.");
         }
     }
 
@@ -129,8 +130,8 @@ export async function closeSession(
         try {
             await param(query);
         } catch (err) {
-            console.warn("Error applying session param:", err);
-            console.warn("Skipping invalid param.");
+            logger.warn("Error applying session param:", err);
+            logger.warn("Skipping invalid param.");
         }
     }
     const updates: Partial<SessionDocument> = {
@@ -152,8 +153,8 @@ export async function findSession(
         try {
             await param(query);
         } catch (err) {
-            console.warn("Error applying session param:", err);
-            console.warn("Skipping invalid param.");
+            logger.warn("Error applying session param:", err);
+            logger.warn("Skipping invalid param.");
         }
     }
 
@@ -170,8 +171,8 @@ export async function findSessions(
         try {
             await param(query);
         } catch (err) {
-            console.warn("Error applying session param:", err);
-            console.warn("Skipping invalid param.");
+            logger.warn("Error applying session param:", err);
+            logger.warn("Skipping invalid param.");
         }
     }
     const docs = await SessionModel.find(query as any).exec();
@@ -187,8 +188,8 @@ export async function updateSession(
         try {
             await param(query);
         } catch (err) {
-            console.warn("Error applying session param:", err);
-            console.warn("Skipping invalid param.");
+            logger.warn("Error applying session param:", err);
+            logger.warn("Skipping invalid param.");
         }
     }
 
@@ -207,8 +208,8 @@ export async function deleteSession(
         try {
             await param(query);
         } catch (err) {
-            console.warn("Error applying session param:", err);
-            console.warn("Skipping invalid param.");
+            logger.warn("Error applying session param:", err);
+            logger.warn("Skipping invalid param.");
         }
     }
 

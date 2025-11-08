@@ -5,6 +5,7 @@ import { exit } from "node:process";
 import dotenv, { type DotenvParseOutput } from "dotenv";
 import { ZodError } from "zod";
 
+import { logger } from "#/configs/logger";
 import {
     type Config,
     type ConfigKey,
@@ -56,7 +57,7 @@ export class ConfigManager implements IConfigManager {
     }
 
     private async loadConfig(params: LoadConfigParam[]): Promise<void> {
-        var envContent: DotenvParseOutput = {};
+        let envContent: DotenvParseOutput = {};
         for (const param of params) {
             try {
                 const result = await param();
@@ -67,8 +68,8 @@ export class ConfigManager implements IConfigManager {
                     };
                 }
             } catch (error) {
-                console.error("Error loading config:", error);
-                console.warn("Skipping invalid config file.");
+                logger.error("Error loading config:", error);
+                logger.warn("Skipping invalid config file.");
             }
         }
         const rawConfig = {
@@ -85,7 +86,7 @@ export class ConfigManager implements IConfigManager {
                             `- ${issue.path.join(".")}: ${issue.message}`,
                     )
                     .join("\n");
-                console.error("The configuration is invalid:", errorMessages);
+                logger.error("The configuration is invalid:", errorMessages);
                 exit(1);
             }
             throw error;

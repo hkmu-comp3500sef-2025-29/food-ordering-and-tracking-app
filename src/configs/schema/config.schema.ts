@@ -50,6 +50,15 @@ export const configSchema = z.object({
         .optional()
         .default("admin"),
     INIT_ADMIN_API_KEY: z.boolean().optional().default(false),
+
+    COOKIE_SECRET: z
+        .base64()
+        .min(
+            32,
+            "Cookie secret must be at least 32 bytes when decoded from base64",
+        )
+        .transform((base64Str) => Buffer.from(base64Str, "base64"))
+        .optional(),
 });
 
 export type Config = z.infer<typeof configSchema>;

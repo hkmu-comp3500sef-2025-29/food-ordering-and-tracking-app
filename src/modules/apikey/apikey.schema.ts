@@ -1,5 +1,6 @@
 import mongoose, { Schema } from "mongoose";
 
+import { logger } from "#/configs/logger";
 import { Staff } from "#/modules/staff/staff.schema";
 
 const APIKEY_COLLECTION_NAME = "apikeys";
@@ -25,13 +26,6 @@ apikeySchema.index({
     apiKey: 1,
 });
 
-type ApiKeyDocument = mongoose.InferSchemaType<typeof apikeySchema> &
-    mongoose.Document;
-const ApiKeyModel = mongoose.model<ApiKeyDocument>(
-    APIKEY_COLLECTION_NAME,
-    apikeySchema,
-);
-
 apikeySchema.post(
     /findOneAndDelete|findOneAndRemove/,
     async (doc: ApiKeyDocument) => {
@@ -48,12 +42,19 @@ apikeySchema.post(
                 },
             );
         } catch (err) {
-            console.error(
+            logger.error(
                 "Error cleaning up Staff apiKey refs after findOneAndDelete/Remove:",
                 err,
             );
         }
     },
+);
+
+type ApiKeyDocument = mongoose.InferSchemaType<typeof apikeySchema> &
+    mongoose.Document;
+const ApiKeyModel = mongoose.model<ApiKeyDocument>(
+    APIKEY_COLLECTION_NAME,
+    apikeySchema,
 );
 
 export { ApiKeyModel as ApiKey };

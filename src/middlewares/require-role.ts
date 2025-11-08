@@ -1,6 +1,6 @@
 import type { NextFunction, Request, Response } from "express";
 
-import { errors } from "#/utils/http-error";
+import { httpErrors as errors } from "#/utils/error";
 
 export type StaffRole = "chef" | "waiter" | "admin";
 
@@ -9,10 +9,10 @@ export function requireStaffRole(
 ): (req: Request, res: Response, next: NextFunction) => void {
     const allowed = new Set(roles);
     return (req: Request, _res: Response, next: NextFunction): void => {
-        if (!req.staff) {
+        if (!req.role) {
             throw errors.unauthorized("Staff authentication required");
         }
-        if (!allowed.has(req.staff.role as StaffRole)) {
+        if (!allowed.has(req.role as StaffRole)) {
             throw errors.forbidden("Insufficient role permissions");
         }
         next();

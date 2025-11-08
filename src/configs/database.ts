@@ -2,6 +2,7 @@ import { exit } from "node:process";
 
 import mongoose from "mongoose";
 
+import { logger } from "#/configs/logger";
 import { ConfigManager as cm } from "./config.manager";
 
 const Config = cm.getInstance();
@@ -36,10 +37,10 @@ export class DatabaseManager {
         this.dbName = Config.get("MONGODB_DB_NAME");
         try {
             await this.connectedOrTimeout();
-            console.log("Connected to MongoDB database:", this.dbName);
+            logger.info("Connected to MongoDB database:", this.dbName);
         } catch (error) {
-            console.error("Failed to connect to MongoDB:", error);
-            console.error("Exiting application.");
+            logger.error("Failed to connect to MongoDB:", error);
+            logger.error("Exiting application.");
             exit(1);
         }
     }

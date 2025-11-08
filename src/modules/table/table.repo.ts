@@ -3,6 +3,7 @@ import type { ObjectId } from "mongodb";
 import type { Param } from "#/modules/common/repo";
 
 import { DatabaseManager } from "#/configs/database";
+import { logger } from "#/configs/logger";
 import {
     WithField,
     WithMongoId as WithMongoIdGeneric,
@@ -20,8 +21,8 @@ export async function createTable(
         try {
             await param(config);
         } catch (err) {
-            console.warn("Error applying table param:", err);
-            console.warn("Skipping invalid param.");
+            logger.warn("Error applying table param:", err);
+            logger.warn("Skipping invalid param.");
         }
     }
     const created = new Table(config);
@@ -49,8 +50,8 @@ export async function findTable(
         try {
             await param(query);
         } catch (err) {
-            console.warn("Error applying table param:", err);
-            console.warn("Skipping invalid param.");
+            logger.warn("Error applying table param:", err);
+            logger.warn("Skipping invalid param.");
         }
     }
     return Table.findOne(query as any).exec();
@@ -65,8 +66,8 @@ export async function updateTable(
         try {
             await param(query);
         } catch (err) {
-            console.warn("Error applying table param:", err);
-            console.warn("Skipping invalid param.");
+            logger.warn("Error applying table param:", err);
+            logger.warn("Skipping invalid param.");
         }
     }
     const doc = await Table.findOne(query as any).exec();
@@ -104,8 +105,8 @@ export async function deleteTable(params: TableParam[]): Promise<{
         try {
             await param(query);
         } catch (err) {
-            console.warn("Error applying table param:", err);
-            console.warn("Skipping invalid param.");
+            logger.warn("Error applying table param:", err);
+            logger.warn("Skipping invalid param.");
         }
     }
     return Table.deleteOne(query as any).exec();

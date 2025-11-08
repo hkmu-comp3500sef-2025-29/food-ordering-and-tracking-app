@@ -4,6 +4,7 @@ import { z } from "zod";
 import {
     apiKeyAuth,
     asyncHandler,
+    orderCreationLimiter,
     requireStaffRole,
     sessionContext,
 } from "#/middlewares";
@@ -19,7 +20,7 @@ import {
     WithSessionId,
     WithSort,
 } from "#/modules/order/order.repo";
-import { errors } from "#/utils/http-error";
+import { httpErrors as errors } from "#/utils/error";
 
 const router: Router = Router({
     mergeParams: true,
@@ -68,6 +69,7 @@ const updateDishStatusSchema = z.object({
 
 router.post(
     "/",
+    orderCreationLimiter,
     sessionContext(),
     asyncHandler(async (req, res) => {
         if (!req.sessionContext) {

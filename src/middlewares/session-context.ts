@@ -5,7 +5,7 @@ import {
     findTable,
     WithMongoId as WithTableMongoId,
 } from "#/modules/table/table.repo";
-import { errors } from "#/utils/http-error";
+import { httpErrors as errors } from "#/utils/error";
 import { asyncHandler } from "./async-handler";
 
 export interface SessionContextOptions {

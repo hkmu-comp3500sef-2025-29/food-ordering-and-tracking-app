@@ -13,7 +13,7 @@ import {
     WithName,
     WithPrice,
 } from "#/modules/dish/dish.repo";
-import { errors } from "#/utils/http-error";
+import { httpErrors as errors } from "#/utils/error";
 
 const router: Router = Router({
     mergeParams: true,

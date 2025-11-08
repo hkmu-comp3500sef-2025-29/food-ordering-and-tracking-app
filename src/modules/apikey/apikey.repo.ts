@@ -6,6 +6,7 @@ import crypto from "node:crypto";
 
 import { ObjectId } from "mongodb";
 
+import { logger } from "#/configs/logger";
 import { ApiKey, type ApiKeyDocument } from "#/modules/apikey/apikey.schema";
 import {
     WithField,
@@ -34,8 +35,8 @@ export async function createApiKey(
         try {
             await param(apikey);
         } catch (err) {
-            console.warn("Error applying API key param:", err);
-            console.warn("Skipping invalid param.");
+            logger.warn("Error applying API key param:", err);
+            logger.warn("Skipping invalid param.");
         }
     }
     // Try to run the create + attach inside a transaction when possible
@@ -110,8 +111,8 @@ export async function findApiKey(
         try {
             await param(query);
         } catch (err) {
-            console.warn("Error applying API key param:", err);
-            console.warn("Skipping invalid param.");
+            logger.warn("Error applying API key param:", err);
+            logger.warn("Skipping invalid param.");
         }
     }
     const doc = await ApiKey.findOne(
@@ -128,8 +129,8 @@ export async function deleteApiKey(params: ApiKeyParam[]): Promise<boolean> {
         try {
             await param(query);
         } catch (err) {
-            console.warn("Error applying API key delete param:", err);
-            console.warn("Skipping invalid param.");
+            logger.warn("Error applying API key delete param:", err);
+            logger.warn("Skipping invalid param.");
         }
     }
     if (!query.apiKey || !query._id) {
@@ -148,8 +149,8 @@ export async function deleteApiKeyByCreatedAt(
         try {
             await param(query);
         } catch (err) {
-            console.warn("Error applying API key delete param:", err);
-            console.warn("Skipping invalid param.");
+            logger.warn("Error applying API key delete param:", err);
+            logger.warn("Skipping invalid param.");
         }
     }
     if (!query.createdAt) {

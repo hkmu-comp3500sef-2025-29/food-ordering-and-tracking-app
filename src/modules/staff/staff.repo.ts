@@ -2,6 +2,7 @@ import type { Param } from "#/modules/common/repo";
 
 import { ObjectId } from "mongodb";
 
+import { logger } from "#/configs/logger";
 import {
     WithField,
     WithMongoId as WithMongoIdGeneric,
@@ -108,8 +109,8 @@ export async function findStaff(
         try {
             await param(query);
         } catch (err) {
-            console.warn("Error applying staff param:", err);
-            console.warn("Skipping invalid param.");
+            logger.warn("Error applying staff param:", err);
+            logger.warn("Skipping invalid param.");
         }
     }
 
@@ -135,8 +136,8 @@ export async function findStaffs(
         try {
             await param(queryPartial);
         } catch (err) {
-            console.warn("Error applying staff param:", err);
-            console.warn("Skipping invalid param.");
+            logger.warn("Error applying staff param:", err);
+            logger.warn("Skipping invalid param.");
         }
     }
 
@@ -171,7 +172,7 @@ export async function findStaffs(
     }
 
     if (typeof q.name === "string") {
-        const escaped = q.name.replace(/[^\w-]/g, "\\$&");
+        const escaped = q.name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
         filter.name = {
             $regex: new RegExp(escaped, "i"),
         };
@@ -180,7 +181,7 @@ export async function findStaffs(
             .map((n) => (n == null ? "" : String(n)))
             .filter((s) => s.length > 0)
             .map((s) => {
-                const escaped = s.replace(/[^\w-]/g, "\\$&");
+                const escaped = s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
                 return new RegExp(escaped, "i");
             });
         if (regexes.length > 0)

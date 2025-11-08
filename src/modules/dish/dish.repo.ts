@@ -4,6 +4,7 @@ import type { Param } from "#/modules/common/repo";
 
 import { z } from "zod";
 
+import { logger } from "#/configs/logger";
 import { WithMongoId as MongoIdGeneric } from "#/modules/common/params";
 import { Dish, type DishDocument } from "#/modules/dish/dish.schema";
 
@@ -21,8 +22,8 @@ export async function createDish(params: DishParam[]): Promise<DishDocument> {
         try {
             await param(config);
         } catch (err) {
-            console.warn("Error applying dish param:", err);
-            console.warn("Skipping invalid param.");
+            logger.warn("Error applying dish param:", err);
+            logger.warn("Skipping invalid param.");
         }
     }
     if (config.name === undefined) {
@@ -54,8 +55,8 @@ export async function findDish(
         try {
             await param(query);
         } catch (err) {
-            console.warn("Error applying dish param:", err);
-            console.warn("Skipping invalid param.");
+            logger.warn("Error applying dish param:", err);
+            logger.warn("Skipping invalid param.");
         }
     }
     return Dish.findOne(query as any).exec();
@@ -68,8 +69,8 @@ export async function findDishes(params: DishParam[]): Promise<DishDocument[]> {
         try {
             await param(raw);
         } catch (err) {
-            console.warn("Error applying dish param:", err);
-            console.warn("Skipping invalid param.");
+            logger.warn("Error applying dish param:", err);
+            logger.warn("Skipping invalid param.");
         }
     }
 
@@ -121,8 +122,8 @@ export async function updateDish(
         try {
             await param(query);
         } catch (err) {
-            console.warn("Error applying dish param:", err);
-            console.warn("Skipping invalid param.");
+            logger.warn("Error applying dish param:", err);
+            logger.warn("Skipping invalid param.");
         }
     }
     const doc = await Dish.findOne(query as any).exec();
@@ -151,8 +152,8 @@ export async function deleteDish(params: DishParam[]): Promise<{
         try {
             await param(query);
         } catch (err) {
-            console.warn("Error applying dish param:", err);
-            console.warn("Skipping invalid param.");
+            logger.warn("Error applying dish param:", err);
+            logger.warn("Skipping invalid param.");
         }
     }
     return Dish.deleteOne(query as any).exec();
