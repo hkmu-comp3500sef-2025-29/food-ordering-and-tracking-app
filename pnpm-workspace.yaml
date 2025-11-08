@@ -1,6 +1,9 @@
 minimumReleaseAge: 1440
 
 minimumReleaseAgeExclude:
-    - "@apst/biome"
-    - "@apst/tsconfig"
-    - "@jderstd/express"
+  - '@apst/biome'
+  - '@apst/tsconfig'
+  - '@jderstd/express'
+
+onlyBuiltDependencies:
+  - esbuild

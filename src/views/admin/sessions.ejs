@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Active Sessions</title>
+</head>
+
+<body>
+    <%- include("components/nav/top"); -%>
+    <%- include("components/nav/bottom"); -%>
+    <main>
+        <h2>Sessions</h2>
+        <% if (sessions && sessions.length) { %>
+            <ul>
+                <% sessions.forEach(function(session) { %>
+                    <li>
+                        <span><strong><%= session.uuid %></strong></span>
+                        <span>Status: <%= session.status %></span>
+                        <a href="/admin/sessions/<%= session.uuid %>">Open</a>
+                    </li>
+                <% }); %>
+            </ul>
+        <% } else { %>
+            <p>No sessions found.</p>
+        <% } %>
+    </main>
+</body>
+
+</html>

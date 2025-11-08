@@ -1,11 +1,19 @@
-import { Dish, DishDocument } from "#/modules/dish/dish.schema";
-import { Param } from "#/modules/common/repo";
+import type { ObjectId } from "mongodb";
+
+import type { Param } from "#/modules/common/repo";
+
 import { z } from "zod";
-import { ObjectId } from "mongodb";
+
 import { WithMongoId as MongoIdGeneric } from "#/modules/common/params";
+import { Dish, type DishDocument } from "#/modules/dish/dish.schema";
 
 type DishParam = Param<DishDocument>;
-type Category = 'appetizer' | 'main course' | 'dessert' | 'beverage' | 'undefined';
+type Category =
+    | "appetizer"
+    | "main course"
+    | "dessert"
+    | "beverage"
+    | "undefined";
 
 export async function createDish(params: DishParam[]): Promise<DishDocument> {
     const config: Partial<DishDocument> = {};
@@ -24,9 +32,13 @@ export async function createDish(params: DishParam[]): Promise<DishDocument> {
     try {
         await created.save();
     } catch (err: any) {
-        const isDup = err && (err.code === 11000 || err.code === 11001 || err.name === 'MongoServerError');
+        const isDup =
+            err &&
+            (err.code === 11000 ||
+                err.code === 11001 ||
+                err.name === "MongoServerError");
         if (isDup) {
-            throw new Error('Dish name already exists');
+            throw new Error("Dish name already exists");
         }
         throw err;
     }
@@ -34,7 +46,9 @@ export async function createDish(params: DishParam[]): Promise<DishDocument> {
 }
 
 // find a dish with exactly matching params
-export async function findDish(params: DishParam[]): Promise<DishDocument | null> {
+export async function findDish(
+    params: DishParam[],
+): Promise<DishDocument | null> {
     const query: Partial<DishDocument> = {};
     for (const param of params) {
         try {
@@ -62,8 +76,11 @@ export async function findDishes(params: DishParam[]): Promise<DishDocument[]> {
     const query: Record<string, any> = {};
 
     if (raw.name !== undefined) {
-        if (typeof raw.name === 'string' && raw.name.length > 0) {
-            query.name = { $regex: raw.name, $options: 'i' };
+        if (typeof raw.name === "string" && raw.name.length > 0) {
+            query.name = {
+                $regex: raw.name,
+                $options: "i",
+            };
         } else {
             query.name = raw.name;
         }
@@ -74,8 +91,11 @@ export async function findDishes(params: DishParam[]): Promise<DishDocument[]> {
     }
 
     if (raw.description !== undefined) {
-        if (typeof raw.description === 'string' && raw.description.length > 0) {
-            query.description = { $regex: raw.description, $options: 'i' };
+        if (typeof raw.description === "string" && raw.description.length > 0) {
+            query.description = {
+                $regex: raw.description,
+                $options: "i",
+            };
         } else {
             query.description = raw.description;
         }
@@ -92,7 +112,10 @@ export async function findDishes(params: DishParam[]): Promise<DishDocument[]> {
     return Dish.find(query).exec();
 }
 
-export async function updateDish(params: DishParam[], updates: Partial<DishDocument>): Promise<DishDocument | null> {
+export async function updateDish(
+    params: DishParam[],
+    updates: Partial<DishDocument>,
+): Promise<DishDocument | null> {
     const query: Partial<DishDocument> = {};
     for (const param of params) {
         try {
@@ -106,7 +129,7 @@ export async function updateDish(params: DishParam[], updates: Partial<DishDocum
     if (!doc) return null;
 
     // Filter out undefined values
-    const plain = updates as Record<string, any> || {};
+    const plain = (updates as Record<string, any>) || {};
     const toSet: Record<string, any> = {};
     for (const [k, v] of Object.entries(plain)) {
         if (v !== undefined) toSet[k] = v;
@@ -120,7 +143,9 @@ export async function updateDish(params: DishParam[], updates: Partial<DishDocum
     return doc as DishDocument;
 }
 
-export async function deleteDish(params: DishParam[]): Promise<{ deletedCount?: number }> {
+export async function deleteDish(params: DishParam[]): Promise<{
+    deletedCount?: number;
+}> {
     const query: Partial<DishDocument> = {};
     for (const param of params) {
         try {
@@ -133,19 +158,20 @@ export async function deleteDish(params: DishParam[]): Promise<{ deletedCount?: 
     return Dish.deleteOne(query as any).exec();
 }
 
-export const WithMongoId = (id: string | ObjectId): DishParam => MongoIdGeneric<DishDocument>(id);
+export const WithMongoId = (id: string | ObjectId): DishParam =>
+    MongoIdGeneric<DishDocument>(id);
 
 export const WithName = (name: string): DishParam => {
     return async (config: Partial<DishDocument>): Promise<void> => {
         config.name = name;
     };
-}
+};
 
 export const WithCategory = (category: Category): DishParam => {
     return async (config: Partial<DishDocument>): Promise<void> => {
         config.category = category;
     };
-}
+};
 
 export const WithImage = (image: string): DishParam => {
     return async (config: Partial<DishDocument>): Promise<void> => {

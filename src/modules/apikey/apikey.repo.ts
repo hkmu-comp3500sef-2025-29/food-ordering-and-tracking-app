@@ -1,22 +1,32 @@
-import { ApiKey, ApiKeyDocument } from "#/modules/apikey/apikey.schema";
-import { Staff, StaffDocument } from "#/modules/staff/staff.schema";
-import { ObjectId } from "mongodb";
-import crypto from "crypto";
+import type { FilterQuery } from "mongoose";
+
 import type { Param } from "#/modules/common/repo";
-import { WithField, WithMongoId as WithMongoIdGeneric } from "#/modules/common/params";
-import type { FilterQuery } from 'mongoose';
+
+import crypto from "node:crypto";
+
+import { ObjectId } from "mongodb";
+
+import { ApiKey, type ApiKeyDocument } from "#/modules/apikey/apikey.schema";
+import {
+    WithField,
+    WithMongoId as WithMongoIdGeneric,
+} from "#/modules/common/params";
+import { Staff, type StaffDocument } from "#/modules/staff/staff.schema";
 
 type ApiKeyParam = Param<ApiKeyDocument>;
 
-export async function createApiKey(params: ApiKeyParam[], staffId: string | ObjectId): Promise<string> {
+export async function createApiKey(
+    params: ApiKeyParam[],
+    staffId: string | ObjectId,
+): Promise<string> {
     if (!staffId) {
-        throw new Error('staffId must be provided when creating an API key');
+        throw new Error("staffId must be provided when creating an API key");
     }
 
     // ensure database manager is initialized and connected
-    
+
     const apikey: Partial<ApiKeyDocument> = {
-        apiKey: crypto.randomBytes(32).toString('hex'),
+        apiKey: crypto.randomBytes(32).toString("hex"),
         createdAt: new Date(),
         // expiredAt will be set by params if needed, default is forever
     };
@@ -33,9 +43,11 @@ export async function createApiKey(params: ApiKeyParam[], staffId: string | Obje
     try {
         session.startTransaction();
 
-            // create apikey within the session using a model instance to satisfy types
-            const createdApiKey = new ApiKey(apikey);
-            await createdApiKey.save({ session });
+        // create apikey within the session using a model instance to satisfy types
+        const createdApiKey = new ApiKey(apikey);
+        await createdApiKey.save({
+            session,
+        });
 
         // convert staffId to ObjectId if needed
         let staffObjectId: ObjectId;
@@ -43,14 +55,18 @@ export async function createApiKey(params: ApiKeyParam[], staffId: string | Obje
             staffObjectId = staffId;
         } else {
             if (!ObjectId.isValid(staffId)) {
-                throw new Error('Invalid staffId');
+                throw new Error("Invalid staffId");
             }
             staffObjectId = new ObjectId(staffId);
         }
 
-        const staffDoc: StaffDocument | null = await Staff.findById(staffObjectId).session(session).exec();
+        const staffDoc: StaffDocument | null = await Staff.findById(
+            staffObjectId,
+        )
+            .session(session)
+            .exec();
         if (!staffDoc) {
-            throw new Error('No Staff found with the provided staffId');
+            throw new Error("No Staff found with the provided staffId");
         }
 
         // ensure apiKey array exists and add the key if not present
@@ -60,17 +76,19 @@ export async function createApiKey(params: ApiKeyParam[], staffId: string | Obje
 
         const key = apikey.apiKey;
         if (!key) {
-            throw new Error('Generated API key is missing');
+            throw new Error("Generated API key is missing");
         }
 
         if (!staffDoc.apiKey.includes(key)) {
             staffDoc.apiKey.push(key);
-            await staffDoc.save({ session });
+            await staffDoc.save({
+                session,
+            });
         }
 
         await session.commitTransaction();
         session.endSession();
-        return apikey.apiKey!;
+        return key;
     } catch (err) {
         try {
             await session.abortTransaction();
@@ -84,7 +102,9 @@ export async function createApiKey(params: ApiKeyParam[], staffId: string | Obje
 }
 
 // Recommended to use `WithMongoId` or `findApiKey` for exactly matching API keys
-export async function findApiKey(params: ApiKeyParam[]): Promise<ApiKeyDocument | null> {
+export async function findApiKey(
+    params: ApiKeyParam[],
+): Promise<ApiKeyDocument | null> {
     const query: Partial<ApiKeyDocument> = {};
     for (const param of params) {
         try {
@@ -94,7 +114,9 @@ export async function findApiKey(params: ApiKeyParam[]): Promise<ApiKeyDocument 
             console.warn("Skipping invalid param.");
         }
     }
-    const doc = await ApiKey.findOne(query as unknown as FilterQuery<ApiKeyDocument>).exec();
+    const doc = await ApiKey.findOne(
+        query as unknown as FilterQuery<ApiKeyDocument>,
+    ).exec();
     if (!doc) return null;
     return doc as ApiKeyDocument;
 }
@@ -118,7 +140,9 @@ export async function deleteApiKey(params: ApiKeyParam[]): Promise<boolean> {
     return true;
 }
 
-export async function deleteApiKeyByCreatedAt(params: ApiKeyParam[]): Promise<boolean> {
+export async function deleteApiKeyByCreatedAt(
+    params: ApiKeyParam[],
+): Promise<boolean> {
     const query: Partial<ApiKeyDocument> = {};
     for (const param of params) {
         try {
@@ -131,26 +155,33 @@ export async function deleteApiKeyByCreatedAt(params: ApiKeyParam[]): Promise<bo
     if (!query.createdAt) {
         return false;
     }
-    await ApiKey.deleteMany({ createdAt: { $lt: query.createdAt } }).exec();
+    await ApiKey.deleteMany({
+        createdAt: {
+            $lt: query.createdAt,
+        },
+    }).exec();
     return true;
 }
 
 export async function deleteExpiredApiKeys(): Promise<number> {
     const now = new Date();
-    const result = await ApiKey.deleteMany({ expiredAt: { $lte: now } }).exec();
+    const result = await ApiKey.deleteMany({
+        expiredAt: {
+            $lte: now,
+        },
+    }).exec();
     return result.deletedCount || 0;
 }
 
-
-export const WithMongoId = (id: string | ObjectId): ApiKeyParam => WithMongoIdGeneric<ApiKeyDocument>(id);
-
+export const WithMongoId = (id: string | ObjectId): ApiKeyParam =>
+    WithMongoIdGeneric<ApiKeyDocument>(id);
 
 export function WithApiKey(apiKey: string): ApiKeyParam {
     const regexExpr = /^[a-f0-9]{64}$/;
     if (!regexExpr.test(apiKey)) {
         throw new Error("Invalid API key");
     }
-    return WithField<ApiKeyDocument,"apiKey">('apiKey', apiKey);
+    return WithField<ApiKeyDocument, "apiKey">("apiKey", apiKey);
 }
 
 export function WithCreatedAt(createdAt: Date): ApiKeyParam {
@@ -158,7 +189,10 @@ export function WithCreatedAt(createdAt: Date): ApiKeyParam {
         if (config.expiredAt && createdAt >= config.expiredAt) {
             throw new Error("Invalid creation date");
         }
-        return WithField<ApiKeyDocument,"createdAt">('createdAt', createdAt)(config);
+        return WithField<ApiKeyDocument, "createdAt">(
+            "createdAt",
+            createdAt,
+        )(config);
     };
 }
 
@@ -167,6 +201,9 @@ export function WithExpiredAt(expiredAt: Date): ApiKeyParam {
         if (config.createdAt && expiredAt <= config.createdAt) {
             throw new Error("Invalid expiration date");
         }
-        return WithField<ApiKeyDocument,"expiredAt">('expiredAt', expiredAt)(config);
+        return WithField<ApiKeyDocument, "expiredAt">(
+            "expiredAt",
+            expiredAt,
+        )(config);
     };
 }

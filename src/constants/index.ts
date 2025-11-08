@@ -1,4 +1,4 @@
-import path from "path";
+import path from "node:path";
 
 /**
  * The environment variable for the application.
