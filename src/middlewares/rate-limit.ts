@@ -27,8 +27,8 @@ const skipRateLimiting = (req: any): boolean => {
  * General API rate limiter - applies to all API endpoints
  */
 export const apiLimiter = rateLimit({
-    // 120 requests per 1 minutes for general API usage (matches commit notes)
-    windowMs: 1 * 60 * 1000, // 1 minutes
+    // 120 requests per 1 minute for general API usage (matches commit notes)
+    windowMs: 1 * 60 * 1000, // 1 minute
     max: 120, // Limit each IP to 120 requests per windowMs
     skip: skipRateLimiting,
     message: {
@@ -53,8 +53,8 @@ export const apiLimiter = rateLimit({
  * Strict rate limiter for authentication endpoints
  */
 export const authLimiter = rateLimit({
-    // Stricter auth limiter for session creation: 5 requests per 1 minutes
-    windowMs: 1 * 60 * 1000, // 1 minutes
+    // Stricter auth limiter for session creation: 5 requests per 1 minute
+    windowMs: 1 * 60 * 1000, // 1 minute
     max: 5, // Limit each IP to 5 requests per windowMs
     skip: skipRateLimiting,
     skipSuccessfulRequests: true, // Don't count successful requests
@@ -81,8 +81,8 @@ export const authLimiter = rateLimit({
 });
 
 export const orderCreationLimiter = rateLimit({
-    // Order creation limiter: 60 requests per 1 minutes
-    windowMs: 1 * 60 * 1000, // 1 minutes
+    // Order creation limiter: 60 requests per 1 minute
+    windowMs: 1 * 60 * 1000, // 1 minute
     max: 60, // Limit each IP to 60 order creations per windowMs
     skip: skipRateLimiting,
     message: {

@@ -85,7 +85,7 @@ export const refreshAuthCookie = async (
         ? apiKeyDoc.expiredAt.getTime()
         : Number.MAX_SAFE_INTEGER;
 
-    const newExpiredAtTime = Math.max(
+    const newExpiredAtTime = Math.min(
         apiKeyExpiryTime,
         Date.now() + COOKIE_MAX_AGE,
     );
