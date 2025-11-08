@@ -10,5 +10,5 @@ For the workflow, please refer to [workflow.md](./docs/workflow.md).
 
 For the contributing, please refer to [CONTRIBUTING.md](./CONTRIBUTING.md).
 
-##API
+## API
 For the API, please refer to  [API_DOC.md](./docs/api/API_DOC.md).
