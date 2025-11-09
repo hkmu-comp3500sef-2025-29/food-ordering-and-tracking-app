@@ -1,1 +1,11 @@
-<h1>Top Navigation Bar</h1>
+<header>
+    <div>
+        <strong><%= (navContext && navContext.restaurantName) || "Restaurant" %></strong>
+    </div>
+    <% if (navContext && navContext.tableNumber) { %>
+        <div>Table <%= navContext.tableNumber %></div>
+    <% } %>
+    <div>
+        <a href="/settings">Settings</a>
+    </div>
+</header>

@@ -47,3 +47,14 @@ Start the server in production mode:
 pnpm build
 pnpm start
 ```
+
+## Git push policy
+
+Using `git push --force` or `git push --force-with-lease` is strictly prohibited on any branch that is shared with other developers.
+
+- Do: Push a new commit that fixes mistakes. Use `git revert <commit-hash>` to undo past commits safely.
+- Do not: Rewrite public history (interactive rebase + force-push) on shared branches.
+
+Exception: You may use force-push only if you created the branch, you are the only person working on it, and no one else will need to pull it.
+
+If unsure, always create a fixup commit instead of force-pushing.

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Session Detail</title>
+</head>
+
+<body>
+    <%- include("components/nav/top"); -%>
+    <%- include("components/nav/bottom"); -%>
+    <main>
+        <h2>Session Detail</h2>
+        <p>UUID: <%= session.uuid %></p>
+        <p>Status: <%= session.status %></p>
+        <p>Created At: <%= session.createdAt %></p>
+        <% if (session.closedAt) { %>
+            <p>Closed At: <%= session.closedAt %></p>
+        <% } %>
+        <a href="/admin/sessions">Back to sessions</a>
+    </main>
+</body>
+
+</html>

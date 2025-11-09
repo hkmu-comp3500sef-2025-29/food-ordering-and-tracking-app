@@ -1,30 +1,72 @@
-import type { Db } from "mongodb";
+import { exit } from "node:process";
 
-import { MongoClient } from "mongodb";
+import mongoose from "mongoose";
 
-import { MONGODB_DB_NAME, MONGODB_URI } from "#/constants";
+import { logger } from "#/configs/logger";
+import { ConfigManager as cm } from "./config.manager";
 
-let client: MongoClient;
-let database: Db;
-let isWarned: boolean = false;
+const Config = cm.getInstance();
 
-const connectDatabase = async (): Promise<void> => {
-    if (database) return void 0;
+export class DatabaseManager {
+    private static instance: DatabaseManager;
+    private uri: string = Config.get("MONGODB_URI");
+    private dbName: string = Config.get("MONGODB_DB_NAME");
+    private ready: Promise<void>;
 
-    try {
-        client = await MongoClient.connect(MONGODB_URI);
-        database = client.db(MONGODB_DB_NAME);
-    } catch (_: unknown) {
-        if (isWarned) return void 0;
-        console.log("Failed to connect to database.");
-        console.log("The application will continue to run without a database.");
-        isWarned = true;
+    private constructor() {
+        // keep a reference to the initialization promise so callers can await it
+        this.ready = this.initialize();
     }
-};
 
-const getDatabase = (): Db => {
-    if (!database) throw new Error("Database is not connected.");
-    return database;
-};
+    /**
+     * Get the singleton instance. This method is async to ensure callers
+     * receive an instance only after the DB connection attempt finished
+     * (successful connect or the process exits on failure).
+     */
+    public static async getInstance(): Promise<DatabaseManager> {
+        if (!DatabaseManager.instance) {
+            DatabaseManager.instance = new DatabaseManager();
+        }
+        // wait for initialization to complete (connect or timeout -> exit)
+        await DatabaseManager.instance.ready;
+        return DatabaseManager.instance;
+    }
 
-export { connectDatabase, getDatabase };
+    private async initialize(): Promise<void> {
+        this.uri = Config.get("MONGODB_URI");
+        this.dbName = Config.get("MONGODB_DB_NAME");
+        try {
+            await this.connectedOrTimeout();
+            logger.info("Connected to MongoDB database:", this.dbName);
+        } catch (error) {
+            logger.error("Failed to connect to MongoDB:", error);
+            logger.error("Exiting application.");
+            exit(1);
+        }
+    }
+
+    private async connectedOrTimeout(timeoutMs = 10000): Promise<void> {
+        await new Promise<void>((resolve, reject) => {
+            const timer = setTimeout(() => {
+                reject(new Error("Database connection timed out."));
+            }, timeoutMs);
+
+            mongoose
+                .connect(this.uri, {
+                    dbName: this.dbName,
+                })
+                .then(() => {
+                    clearTimeout(timer);
+                    resolve();
+                })
+                .catch((error) => {
+                    clearTimeout(timer);
+                    reject(error);
+                });
+        });
+    }
+
+    public async close(): Promise<void> {
+        await mongoose.disconnect();
+    }
+}

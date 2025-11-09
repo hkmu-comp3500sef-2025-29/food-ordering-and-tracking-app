@@ -1,23 +1,43 @@
-import type { Request, Response } from "express";
+import type { NextFunction, Request, Response } from "express";
 
-import { createJsonResponse } from "@jderstd/express";
 import { Router } from "express";
 
-import { routerApiSession } from "#/router/api/session";
+import { ConfigManager } from "#/configs/config.manager";
+import { apiLimiter } from "#/middlewares";
+import { routerV1 } from "#/router/api/v1";
 
-const router: Router = Router();
+const configVersion = ConfigManager.getInstance().get("API_VERSION");
 
-router.get("/", async (_req: Request, res: Response): Promise<Response> => {
-    return createJsonResponse(res);
+const versionRouters = new Map<string, Router>([
+    [
+        configVersion,
+        routerV1,
+    ],
+]);
+
+const router: Router = Router({
+    mergeParams: true,
 });
 
-router.use("/sessions/", routerApiSession);
+// Apply general rate limiting to all API endpoints
+router.use(apiLimiter);
 
-router.get("/test", async (_req: Request, res: Response): Promise<Response> => {
-    return createJsonResponse(res, {
-        data: {
-            message: "Hello, World!",
-        },
+router.use((req: Request, res: Response, next: NextFunction) => {
+    const version = req.params.version ?? "";
+    const handler = versionRouters.get(version);
+    if (!handler) {
+        return res.status(426).json({
+            success: false,
+            error: "Unsupported API version",
+        });
+    }
+    return handler(req, res, next);
+});
+
+router.use((_req: Request, res: Response) => {
+    res.status(404).json({
+        success: false,
+        error: "Endpoint not found",
     });
 });
 
