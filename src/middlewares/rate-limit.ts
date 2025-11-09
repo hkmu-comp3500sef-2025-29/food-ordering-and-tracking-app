@@ -74,7 +74,7 @@ export const authLimiter = rateLimit({
             success: false,
             error: "TOO_MANY_AUTH_ATTEMPTS",
             message:
-                "Too many authentication attempts from this IP, please try again after 15 minutes.",
+                "Too many authentication attempts from this IP, please try again after 1 minute.",
             requestId: req.requestId,
         });
     },
