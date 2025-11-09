@@ -33,7 +33,7 @@ export const configSchema = z.object({
 
     PORT: z.coerce
         .number()
-        .min(1, "Port number must be at least 1")
+        .min(2000, "Port number must be at least 2000")
         .max(65535, "Port number must be at most 65535")
         .optional()
         .default(3000),
