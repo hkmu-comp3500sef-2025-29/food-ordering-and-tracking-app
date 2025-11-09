@@ -31,17 +31,16 @@ Requests without this header will be rejected with **401 Unauthorized**.
 ## Endpoints Overview
 
 | Category | Base Path | Description |
-|-----------|------------|-------------|
-| Auth | `/api/auth` | Authentication and session control |
-| Users | `/api/users` | User profile and account management |
-| Menu | `/api/menu` | Menu and item data retrieval |
-| Orders | `/api/orders` | Order creation, updates, and tracking |
+|-----------|---------------------|------------------------------------------|
+| Sessions | `/api/v1/sessions`   | Authentication and session control       |
+| Dishes   | `/api/v1/dishes`     | Menu and item data retrieval             |
+| Orders   | `/api/v1/orders`     | Order creation, updates, and tracking    |
 
 ---
 
-## Auth API
+## Sessions API
 
-### `POST /api/auth/login`
+### `POST /api/v1/sessions/login`
 **Description:** Authenticate user and return session token.
 
 **Headers**
