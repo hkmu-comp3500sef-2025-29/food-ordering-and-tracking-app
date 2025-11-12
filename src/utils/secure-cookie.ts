@@ -1,7 +1,6 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 
 import { ConfigManager } from "#/configs/config.manager";
-import { logger } from "#/configs/logger";
 import { findApiKey, WithApiKey } from "#/modules/apikey/apikey.repo";
 
 export interface AuthCookiePayload {
@@ -13,24 +12,6 @@ export interface AuthCookiePayload {
 // Get secret from environment variable - REQUIRED in production
 const getCookieSecret = (): Buffer => {
     const secret = ConfigManager.getInstance().get("COOKIE_SECRET");
-
-    if (!secret) {
-        const isProduction = process.env.NODE_ENV === "production";
-        if (isProduction) {
-            logger.error(
-                "COOKIE_SECRET is not set in production environment. This is a critical security issue.",
-            );
-            throw new Error(
-                "COOKIE_SECRET must be set in production environment",
-            );
-        }
-        logger.warn(
-            "COOKIE_SECRET is not set. Using insecure default for development only.",
-        );
-        // Use a weak default only for development
-        return Buffer.from("dev-insecure-secret-change-me", "utf-8");
-    }
-
     return secret;
 };
 

@@ -49,25 +49,42 @@ export const configSchema = z.object({
         .min(1, "Initial admin name must be at least 1 character long")
         .optional()
         .default("admin"),
-    INIT_ADMIN_API_KEY: z.boolean().optional().default(false),
+    INIT_ADMIN_API_KEY: z
+        .enum([
+            "true",
+            "false",
+        ])
+        .transform((val) => val === "true")
+        .default(false),
 
     COOKIE_SECRET:
         process.env.NODE_ENV === "production"
             ? z
                   .base64()
-                  .min(
-                      32,
-                      "Cookie secret must be at least 32 bytes when decoded from base64",
-                  )
-                  .transform((base64Str) => Buffer.from(base64Str, "base64"))
+                  .refine((s) => {
+                      try {
+                          return Buffer.from(s, "base64").length >= 32;
+                      } catch {
+                          // should not reach here as verified by base64()
+                          return false;
+                      }
+                  }, "Cookie secret must be at least 32 bytes when decoded from base64")
+                  // remove optional() and default() in production
+                  .transform((s) => Buffer.from(s, "base64"))
             : z
                   .base64()
-                  .min(
-                      32,
-                      "Cookie secret must be at least 32 bytes when decoded from base64",
-                  )
-                  .transform((base64Str) => Buffer.from(base64Str, "base64"))
-                  .optional(),
+                  .refine((s) => {
+                      try {
+                          return Buffer.from(s, "base64").length >= 32;
+                      } catch {
+                          // should not reach here as verified by base64()
+                          return false;
+                      }
+                  }, "Cookie secret must be at least 32 bytes when decoded from base64")
+                  .optional()
+                  // This is a random base64 string generated using `openssl rand -base64 32`
+                  .default("vyH37xWoS4pItUt+od48PY4jU0/3qzfPgK1t5fJr8Fs=")
+                  .transform((s) => Buffer.from(s, "base64")),
 });
 
 export type Config = z.infer<typeof configSchema>;
