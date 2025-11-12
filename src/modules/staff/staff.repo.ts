@@ -1,13 +1,13 @@
-import type { Param } from "#/modules/common/repo";
+import type { Param } from "#/modules/common/repo.js";
 
 import { ObjectId } from "mongodb";
 
-import { logger } from "#/configs/logger";
+import { logger } from "#/configs/logger.js";
 import {
     WithField,
     WithMongoId as WithMongoIdGeneric,
-} from "#/modules/common/params";
-import { Staff, type StaffDocument } from "#/modules/staff/staff.schema";
+} from "#/modules/common/params.js";
+import { Staff, type StaffDocument } from "#/modules/staff/staff.schema.js";
 
 // Query shape used for normalization before building the final Mongo filter
 type StaffQuery = Partial<{

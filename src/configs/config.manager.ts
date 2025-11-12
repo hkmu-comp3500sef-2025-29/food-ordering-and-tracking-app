@@ -5,12 +5,12 @@ import { exit } from "node:process";
 import dotenv, { type DotenvParseOutput } from "dotenv";
 import { ZodError } from "zod";
 
-import { logger } from "#/configs/logger";
+import { logger } from "#/configs/logger.js";
 import {
     type Config,
     type ConfigKey,
     configSchema,
-} from "./schema/config.schema";
+} from "#/configs/schema/config.schema.js";
 
 interface IConfigManager {
     get<T extends ConfigKey>(key: T): Config[T];

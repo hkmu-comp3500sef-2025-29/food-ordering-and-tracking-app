@@ -1,6 +1,6 @@
 import type { NextFunction, Request, Response } from "express";
 
-import { httpErrors as errors } from "#/utils/error";
+import { httpErrors as errors } from "#/utils/error/index.js";
 
 export type StaffRole = "chef" | "waiter" | "admin";
 

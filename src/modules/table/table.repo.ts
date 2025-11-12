@@ -1,14 +1,14 @@
 import type { ObjectId } from "mongodb";
 
-import type { Param } from "#/modules/common/repo";
+import type { Param } from "#/modules/common/repo.js";
 
-import { DatabaseManager } from "#/configs/database";
-import { logger } from "#/configs/logger";
+import { DatabaseManager } from "#/configs/database.js";
+import { logger } from "#/configs/logger.js";
 import {
     WithField,
     WithMongoId as WithMongoIdGeneric,
-} from "#/modules/common/params";
-import { Table, type TableDocument } from "#/modules/table/table.schema";
+} from "#/modules/common/params.js";
+import { Table, type TableDocument } from "#/modules/table/table.schema.js";
 
 type TableParam = Param<TableDocument>;
 

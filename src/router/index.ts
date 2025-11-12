@@ -1,7 +1,7 @@
 import { Router } from "express";
 
-import { routerApi } from "#/router/api";
-import { routerView } from "#/router/view";
+import { routerApi } from "#/router/api/index.js";
+import { routerView } from "#/router/view/index.js";
 
 const router: Router = Router({
     mergeParams: true,

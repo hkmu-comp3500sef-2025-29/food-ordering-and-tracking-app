@@ -1,18 +1,18 @@
 import type { FilterQuery } from "mongoose";
 
-import type { Param } from "#/modules/common/repo";
+import type { Param } from "#/modules/common/repo.js";
 
 import crypto from "node:crypto";
 
 import { ObjectId } from "mongodb";
 
-import { logger } from "#/configs/logger";
-import { ApiKey, type ApiKeyDocument } from "#/modules/apikey/apikey.schema";
+import { logger } from "#/configs/logger.js";
+import { ApiKey, type ApiKeyDocument } from "#/modules/apikey/apikey.schema.js";
 import {
     WithField,
     WithMongoId as WithMongoIdGeneric,
-} from "#/modules/common/params";
-import { Staff, type StaffDocument } from "#/modules/staff/staff.schema";
+} from "#/modules/common/params.js";
+import { Staff, type StaffDocument } from "#/modules/staff/staff.schema.js";
 
 type ApiKeyParam = Param<ApiKeyDocument>;
 

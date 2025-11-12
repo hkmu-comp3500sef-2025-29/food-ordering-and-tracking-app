@@ -2,9 +2,9 @@ import type { NextFunction, Request, Response } from "express";
 
 import { Router } from "express";
 
-import { ConfigManager } from "#/configs/config.manager";
-import { apiLimiter } from "#/middlewares";
-import { routerV1 } from "#/router/api/v1";
+import { ConfigManager } from "#/configs/config.manager.js";
+import { apiLimiter } from "#/middlewares/index.js";
+import { routerV1 } from "#/router/api/v1/index.js";
 
 const configVersion = ConfigManager.getInstance().get("API_VERSION");
 

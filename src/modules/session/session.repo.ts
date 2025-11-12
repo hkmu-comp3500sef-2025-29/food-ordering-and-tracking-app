@@ -1,18 +1,18 @@
-import type { Param } from "#/modules/common/repo";
-import type { SessionDocument } from "#/modules/session/session.schema";
+import type { Param } from "#/modules/common/repo.js";
+import type { SessionDocument } from "#/modules/session/session.schema.js";
 
 import crypto from "node:crypto";
 
 import { ObjectId } from "mongodb";
 import { z } from "zod";
 
-import { logger } from "#/configs/logger";
+import { logger } from "#/configs/logger.js";
 import {
     WithField,
     WithMongoId as WithMongoIdGeneric,
-} from "#/modules/common/params";
-import { SessionModel } from "#/modules/session/session.schema";
-import { Table } from "#/modules/table/table.schema";
+} from "#/modules/common/params.js";
+import { SessionModel } from "#/modules/session/session.schema.js";
+import { Table } from "#/modules/table/table.schema.js";
 
 type SessionParam = Param<SessionDocument>;
 type Status = "active" | "cancelled" | "closed";

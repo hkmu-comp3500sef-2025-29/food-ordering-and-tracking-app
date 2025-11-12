@@ -1,7 +1,7 @@
 import mongoose, { Schema } from "mongoose";
 
-import { logger } from "#/configs/logger";
-import { Staff } from "#/modules/staff/staff.schema";
+import { logger } from "#/configs/logger.js";
+import { Staff } from "#/modules/staff/staff.schema.js";
 
 const APIKEY_COLLECTION_NAME = "apikeys";
 

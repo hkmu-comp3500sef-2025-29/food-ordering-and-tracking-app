@@ -7,13 +7,13 @@ import {
     asyncHandler,
     requireStaffRole,
     sessionContext,
-} from "#/middlewares";
+} from "#/middlewares/index.js";
 import {
     findSession,
     findSessions,
     WithUuid,
-} from "#/modules/session/session.repo";
-import { httpErrors as errors } from "#/utils/error";
+} from "#/modules/session/session.repo.js";
+import { httpErrors as errors } from "#/utils/error/index.js";
 
 const router: Router = Router({
     mergeParams: true,

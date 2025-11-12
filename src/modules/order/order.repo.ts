@@ -1,16 +1,16 @@
 import type { FilterQuery } from "mongoose";
 
-import type { Param } from "#/modules/common/repo";
+import type { Param } from "#/modules/common/repo.js";
 
 import { ObjectId } from "mongodb";
 import { z } from "zod";
 
-import { logger } from "#/configs/logger";
+import { logger } from "#/configs/logger.js";
 import {
     WithField,
     WithMongoId as WithMongoIdGeneric,
-} from "#/modules/common/params";
-import { Order, type OrderDocument } from "#/modules/order/order.schema";
+} from "#/modules/common/params.js";
+import { Order, type OrderDocument } from "#/modules/order/order.schema.js";
 
 // Param type alias for Order documents
 type OrderParam = Param<OrderDocument>;

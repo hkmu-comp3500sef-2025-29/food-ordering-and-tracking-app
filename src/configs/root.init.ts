@@ -1,8 +1,8 @@
-import { ConfigManager } from "#/configs/config.manager";
-import { DatabaseManager } from "#/configs/database";
-import { logger } from "#/configs/logger";
-import { createApiKey } from "#/modules/apikey/apikey.repo";
-import { Staff } from "#/modules/staff/staff.schema";
+import { ConfigManager } from "#/configs/config.manager.js";
+import { DatabaseManager } from "#/configs/database.js";
+import { logger } from "#/configs/logger.js";
+import { createApiKey } from "#/modules/apikey/apikey.repo.js";
+import { Staff } from "#/modules/staff/staff.schema.js";
 
 const Config: ConfigManager = ConfigManager.getInstance();
 

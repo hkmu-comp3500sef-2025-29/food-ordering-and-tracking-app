@@ -5,13 +5,13 @@ import cookieParser from "cookie-parser";
 import express from "express";
 import helmet from "helmet";
 
-import { ConfigManager } from "#/configs/config.manager";
-import { httpLogger, logger } from "#/configs/logger";
-import { initDatabase, loadTrustedIps } from "#/configs/root.init";
-import { PATH_PUBLIC, PATH_VIEWS } from "#/constants";
-import { requestContext, responseTimer } from "#/middlewares";
-import { router } from "#/router";
-import { isHttpError } from "#/utils/error";
+import { ConfigManager } from "#/configs/config.manager.js";
+import { httpLogger, logger } from "#/configs/logger.js";
+import { initDatabase, loadTrustedIps } from "#/configs/root.init.js";
+import { PATH_PUBLIC, PATH_VIEWS } from "#/constants/index.js";
+import { requestContext, responseTimer } from "#/middlewares/index.js";
+import { router } from "#/router/index.js";
+import { isHttpError } from "#/utils/error/index.js";
 
 const Config = ConfigManager.getInstance();
 
@@ -91,12 +91,9 @@ async function start(): Promise<void> {
     });
 }
 
-// If run directly, start the server
-if (require.main === module) {
-    start().catch((err) => {
-        logger.error("Failed to start server:", err);
-        process.exit(1);
-    });
-}
+start().catch((err) => {
+    logger.error("Failed to start server:", err);
+    process.exit(1);
+});
 
 export default app;

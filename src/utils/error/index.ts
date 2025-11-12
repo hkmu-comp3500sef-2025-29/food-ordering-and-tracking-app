@@ -1,1 +1,1 @@
-export * from "#/utils/error/http.error";
+export * from "#/utils/error/http.error.js";

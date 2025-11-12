@@ -1,12 +1,12 @@
 import type { ObjectId } from "mongodb";
 
-import type { Param } from "#/modules/common/repo";
+import type { Param } from "#/modules/common/repo.js";
 
 import { z } from "zod";
 
-import { logger } from "#/configs/logger";
-import { WithMongoId as MongoIdGeneric } from "#/modules/common/params";
-import { Dish, type DishDocument } from "#/modules/dish/dish.schema";
+import { logger } from "#/configs/logger.js";
+import { WithMongoId as MongoIdGeneric } from "#/modules/common/params.js";
+import { Dish, type DishDocument } from "#/modules/dish/dish.schema.js";
 
 type DishParam = Param<DishDocument>;
 type Category =

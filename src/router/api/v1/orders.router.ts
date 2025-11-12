@@ -7,7 +7,7 @@ import {
     orderCreationLimiter,
     requireStaffRole,
     sessionContext,
-} from "#/middlewares";
+} from "#/middlewares/index.js";
 import {
     createOrder,
     findOrder,
@@ -19,8 +19,8 @@ import {
     WithMongoId,
     WithSessionId,
     WithSort,
-} from "#/modules/order/order.repo";
-import { httpErrors as errors } from "#/utils/error";
+} from "#/modules/order/order.repo.js";
+import { httpErrors as errors } from "#/utils/error/index.js";
 
 const router: Router = Router({
     mergeParams: true,

@@ -1,7 +1,7 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 
-import { ConfigManager } from "#/configs/config.manager";
-import { findApiKey, WithApiKey } from "#/modules/apikey/apikey.repo";
+import { ConfigManager } from "#/configs/config.manager.js";
+import { findApiKey, WithApiKey } from "#/modules/apikey/apikey.repo.js";
 
 export interface AuthCookiePayload {
     role: string;

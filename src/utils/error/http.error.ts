@@ -1,6 +1,6 @@
 import z from "zod";
 
-import { logger } from "#/configs/logger";
+import { logger } from "#/configs/logger.js";
 
 interface IHttpError extends Error {
     statusCode: number;

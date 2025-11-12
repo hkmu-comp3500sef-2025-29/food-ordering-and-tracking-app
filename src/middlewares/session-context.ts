@@ -1,12 +1,12 @@
 import type { NextFunction, Request, Response } from "express";
 
-import { findSession, WithUuid } from "#/modules/session/session.repo";
+import { asyncHandler } from "#/middlewares/async-handler.js";
+import { findSession, WithUuid } from "#/modules/session/session.repo.js";
 import {
     findTable,
     WithMongoId as WithTableMongoId,
-} from "#/modules/table/table.repo";
-import { httpErrors as errors } from "#/utils/error";
-import { asyncHandler } from "./async-handler";
+} from "#/modules/table/table.repo.js";
+import { httpErrors as errors } from "#/utils/error/index.js";
 
 export interface SessionContextOptions {
     optional?: boolean;
