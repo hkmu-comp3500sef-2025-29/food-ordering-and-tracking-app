@@ -17,7 +17,7 @@ interface IConfigManager {
     has(key: ConfigKey): boolean;
 }
 
-type LoadConfigParam = () => Promise<DotenvParseOutput | undefined>;
+type LoadConfigParam = () => DotenvParseOutput | undefined;
 
 const PATH_ROOT = process.cwd();
 
@@ -37,10 +37,14 @@ export class ConfigManager implements IConfigManager {
         }
         if (NODE_ENV === "production") {
             envpath = path.resolve(PATH_ROOT, ".env.production");
-            functions.push(WithFile(envpath));
+            if (fs.existsSync(envpath)) {
+                functions.push(WithFile(envpath));
+            }
         } else if (NODE_ENV === "development") {
             envpath = path.resolve(PATH_ROOT, ".env.development");
-            functions.push(WithFile(envpath));
+            if (fs.existsSync(envpath)) {
+                functions.push(WithFile(envpath));
+            }
         }
         envpath = fs.existsSync(
             path.resolve(PATH_ROOT, `.env.${NODE_ENV}.local`),
@@ -56,11 +60,11 @@ export class ConfigManager implements IConfigManager {
         this.loadConfig(functions);
     }
 
-    private async loadConfig(params: LoadConfigParam[]): Promise<void> {
+    private loadConfig(params: LoadConfigParam[]): void {
         let envContent: DotenvParseOutput = {};
         for (const param of params) {
             try {
-                const result = await param();
+                const result = param();
                 if (result) {
                     envContent = {
                         ...envContent,
@@ -110,7 +114,7 @@ export class ConfigManager implements IConfigManager {
 }
 
 function WithFile(path: string): LoadConfigParam {
-    return async (): Promise<DotenvParseOutput | undefined> => {
+    return (): DotenvParseOutput | undefined => {
         if (!fs.existsSync(path)) {
             throw new Error(
                 `ConfigManager: File does not exist at path ${path}`,
