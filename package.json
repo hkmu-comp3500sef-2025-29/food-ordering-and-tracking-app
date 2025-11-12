@@ -1,5 +1,6 @@
 {
     "private": true,
+    "type": "module",
     "scripts": {
         "tsc": "tsc --noEmit",
         "fmt": "biome check --write .",
