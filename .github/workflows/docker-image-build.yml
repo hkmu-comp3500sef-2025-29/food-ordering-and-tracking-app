@@ -13,6 +13,7 @@ on:
       - 'docker-compose.yml'
       - '**/Dockerfile'
       - 'docker/**'
+  workflow_dispatch:
 
 jobs:
   build-image:
