@@ -1,14 +1,346 @@
-<!-- Inherit from the base template that includes the navigation bar -->
-<%- include('partials/navbar', { title: 'Order records' }) %>
+<!-- Top navigation bar: Reuse restaurant name + table number + settings button -->
+<header class="top-nav">
+  <div class="restaurant-info">
+    <h1>ABC</h1>
+    <p>Table No. <%= tableId %></p> <!-- The table number is passed in from the backend (currently logged-in table number). -->
+  </div>
+  <button class="settings-btn">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke="currentColor" stroke-width="2"/>
+      <path d="M19.4 15C19.2669 15.3016 18.8454 15.4657 18.5 15.37C17.75 15.12 17 14.62 16.5 14V10C17 9.38 17.75 8.88 18.5 8.63C18.8454 8.53432 19.2669 8.69838 19.4 9C20.06 10.25 20.4 11.6 20.4 13C20.4 14.4 20.06 15.75 19.4 17C19.2669 17.3016 18.8454 17.4657 18.5 17.37C17.75 17.12 17 16.62 16.5 16H7.5C7 16.62 6.25 17.12 5.5 17.37C5.15457 17.4657 4.73312 17.3016 4.6 17C3.94 15.75 3.6 14.4 3.6 13C3.6 11.6 3.94 10.25 4.6 9C4.73312 8.69838 5.15457 8.53432 5.5 8.63C6.25 8.88 7 9.38 7.5 10V14C7 14.62 6.25 15.12 5.5 15.37C5.15457 15.4657 4.73312 15.3016 4.6 15C3.94 13.75 3.6 12.4 3.6 11C3.6 9.6 3.94 8.25 4.6 7C4.73312 6.69838 5.15457 6.53432 5.5 6.63C6.25 6.88 7 7.38 7.5 8H16.5C17 7.38 17.75 6.88 18.5 6.63C18.8454 6.53432 19.2669 6.69838 19.4 7C20.06 8.25 20.4 9.6 20.4 11C20.4 12.4 20.06 13.75 19.4 15Z" stroke="currentColor" stroke-width="2"/>
+    </svg>
+  </button>
+</header>
 
-<div class="order-list">
-  <% orders.forEach(order => { %>
-    <div class="order-item" onclick="window.location='/record/<%= order._id %>'">
-      <div class="order-time"><%= order.createdAt.toLocaleString() %></div>
-      <div class="order-status"><%= order.status %></div>
-      <div class="order-total">Total price：¥<%= order.totalPrice %></div>
-    </div>
-  <% }) %>
+<!-- Page Title -->
+<div class="page-title">
+  <h2>Record</h2>
 </div>
 
-<%- include('partials/bottom-tab') %>
+<!-- Order list container -->
+<div class="orders-container">
+  <!-- Empty status message (displayed when there are no historical orders) -->
+  <% if (orders.length === 0) { %>
+    <div class="empty-orders">
+      <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="empty-icon">
+        <path d="M12 8V12L15 15" stroke="#ddd" stroke-width="2" stroke-linecap="round"/>
+        <circle cx="12" cy="12" r="9" stroke="#ddd" stroke-width="2"/>
+      </svg>
+      <p>No order records yet</p>
+      <button class="go-to-menu" onclick="window.location='/menu'">Go to Menu</button>
+    </div>
+  <% } else { %>
+    <!-- Order list: sorted in descending order of time (newest first). -->
+    <div class="orders-list">
+      <% orders.forEach(order => { %>
+        <!-- Order item card: Click to jump to the details page -->
+        <div class="order-card" onclick="window.location='/record/<%= order._id %>'">
+          <!-- Order header: Time + Status -->
+          <div class="order-header">
+            <p class="order-date"><%= new Date(order.createdAt).toLocaleString('en-US', { 
+              month: 'short', 
+              day: 'numeric', 
+              year: 'numeric', 
+              hour: 'numeric', 
+              minute: 'numeric', 
+              hour12: true 
+            }) %></p>
+            <!-- Status labels: different colors for different statuses -->
+            <span class="order-status <%= order.status %>">
+              <%= order.status.charAt(0).toUpperCase() + order.status.slice(1) %> <!-- Capitalize the first letter -->
+            </span>
+          </div>
+
+          <!-- Order Summary: Quantity of dishes + Total amount -->
+          <div class="order-summary">
+            <p class="dish-count"><%= order.dish.length %> item<%= order.dish.length > 1 ? 's' : '' %></p>
+            <p class="order-total">$<%= order.dish.reduce((sum, item) => sum + (item.dish_id.price * item.quantity), 0).toFixed(2) %></p>
+          </div>
+
+          <!-- Jump arrow: Clickable prompt -->
+          <div class="arrow-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M5 12H19M19 12L14 7M19 12L14 17" stroke="#999" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+  <% } %>
+</div>
+
+<!-- Bottom Navigation Bar -->
+<footer class="bottom-nav">
+  <button class="nav-btn menu-btn" onclick="window.location='/menu'">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M3 8H21M3 13H21M3 18H15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+    <span>Menu</span>
+  </button>
+  <button class="nav-btn cart-btn" onclick="window.location='/cart'">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M6 2L3 6V18C3 19.1046 3.89543 20 5 20H19C20.1046 20 21 19.1046 21 18V6L18 2H6Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M16 10V4H8V10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M16 14C16 15.1046 15.1046 16 14 16C12.8954 16 12 15.1046 12 14C12 12.8954 12.8954 12 14 12C15.1046 12 16 12.8954 16 14Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <span>Cart</span>
+  </button>
+  <button class="nav-btn record-btn active">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 8V12L15 15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/>
+    </svg>
+    <span>Record</span>
+  </button>
+</footer>
+
+<!-- Core style: Consistent with the details page, optimized list layout. -->
+<style>
+  /* Basic reset: Reuse the details page style to avoid duplication. */
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+
+  body {
+    background-color: #f5f5f5;
+    color: #333;
+    min-height: 100vh;
+    padding-bottom: 60px; /* Reserve bottom navigation height */
+  }
+
+  /* Top Navigation Bar */
+  .top-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    background-color: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+
+  .restaurant-info h1 {
+    font-size: 20px;
+    font-weight: 600;
+    color: #333;
+  }
+
+  .restaurant-info p {
+    font-size: 14px;
+    color: #666;
+  }
+
+  .settings-btn {
+    background: none;
+    border: none;
+    color: #333;
+    cursor: pointer;
+  }
+
+  /* Page Title */
+  .page-title {
+    padding: 15px 20px;
+  }
+
+  .page-title h2 {
+    font-size: 22px;
+    font-weight: 600;
+    color: #333;
+  }
+
+  /* Order list container: Centered + Spacing Control */
+  .orders-container {
+    padding: 0 20px;
+    margin-top: 10px;
+  }
+
+  /* Empty order status: Centered display with user-friendly prompts. */
+  .empty-orders {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-top: 80px;
+    text-align: center;
+  }
+
+  .empty-icon {
+    margin-bottom: 15px;
+  }
+
+  .empty-orders p {
+    font-size: 16px;
+    color: #999;
+    margin-bottom: 20px;
+  }
+
+  .go-to-menu {
+    padding: 10px 25px;
+    background-color: #ff6b35;
+    color: white;
+    border: none;
+    border-radius: 25px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+
+  .go-to-menu:hover {
+    background-color: #e55a2a;
+  }
+
+  /* Order list: Vertical spacing */
+  .orders-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px; /* 订单项之间的间距 */
+  }
+
+  /* Order item card: White background + rounded corners + shadow, click feedback */
+  .order-card {
+    background-color: white;
+    border-radius: 12px;
+    padding: 18px 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    display: flex;
+    flex-direction: column;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+
+  /* A slight upward movement when clicked enhances the interactive experience. */
+  .order-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+
+  /* Order header: Time + Status, left-right layout */
+  .order-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+
+  .order-date {
+    font-size: 14px;
+    color: #666;
+  }
+
+  /* Status labels: different colors for different statuses, rounded corners */
+  .order-status {
+    padding: 4px 12px;
+    border-radius: 16px;
+    font-size: 13px;
+    font-weight: 500;
+    text-transform: capitalize;
+  }
+
+  /* Status color differentiation: consistent with the logic of the details page */
+  .order-status.placed {
+    background-color: #e0f7fa;
+    color: #00695c;
+  }
+  .order-status.confirmed {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+  }
+  .order-status.preparing {
+    background-color: #fff8e1;
+    color: #ff8f00;
+  }
+  .order-status.ready {
+    background-color: #e3f2fd;
+    color: #0d47a1;
+  }
+  .order-status.delivered {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+  }
+  .order-status.refund {
+    background-color: #ffebee;
+    color: #c62828;
+  }
+
+  /* Order summary: Quantity of dishes + total amount, arranged horizontally */
+  .order-summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 12px;
+    border-top: 1px solid #f0f0f0;
+  }
+
+  .dish-count {
+    font-size: 15px;
+    color: #999;
+  }
+
+  .order-total {
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+  }
+
+  /* Arrow icon: Click to jump to the next page */
+  .arrow-icon {
+    position: absolute;
+    right: 35px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #999;
+  }
+
+  /* Bottom navigation bar: Fully reuses the details page style to ensure consistency. */
+  .bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-around;
+    background-color: white;
+    padding: 8px 0;
+    box-shadow: 0 -2px 4px rgba(0,0,0,0.05);
+  }
+
+  .nav-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: none;
+    border: none;
+    color: #999; /* Default Gray */
+    font-size: 12px;
+    cursor: pointer;
+    padding: 5px 15px;
+  }
+
+  .nav-btn svg {
+    margin-bottom: 4px;
+    width: 22px;
+    height: 22px;
+  }
+
+  .nav-btn.active {
+    color: #ff6b35; /* Selected status orange */
+    font-weight: 500;
+  }
+
+  /* Responsive optimization: Adapted for small-screen phones */
+  @media (max-width: 375px) {
+    .order-date {
+      font-size: 13px;
+    }
+    .order-status {
+      padding: 3px 10px;
+      font-size: 12px;
+    }
+    .order-total {
+      font-size: 16px;
+    }
+  }
+</style>
