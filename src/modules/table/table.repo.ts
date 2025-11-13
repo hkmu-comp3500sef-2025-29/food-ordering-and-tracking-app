@@ -120,15 +120,9 @@ export const WithMongoId = (id: string | ObjectId): TableParam =>
     WithMongoIdGeneric<TableDocument>(id);
 
 export const WithTableId = (tableId: number): TableParam => {
-    return WithField<TableDocument, "tableId">(
-        "tableId",
-        tableId as unknown as TableDocument["tableId"],
-    );
+    return WithField<TableDocument, "tableId">("tableId", tableId);
 };
 
 export const WithAvailable = (available: boolean): TableParam => {
-    return WithField<TableDocument, "available">(
-        "available",
-        available as unknown as TableDocument["available"],
-    );
+    return WithField<TableDocument, "available">("available", available);
 };

@@ -1,5 +1,3 @@
-import type { ObjectId } from "mongodb";
-
 import { Router } from "express";
 import { z } from "zod";
 
@@ -139,9 +137,7 @@ router.post(
             if (!tableDoc) {
                 throw errors.notFound("Table not found");
             }
-            params.push(
-                WithSessionTableId(tableDoc._id as unknown as ObjectId),
-            );
+            params.push(WithSessionTableId(tableDoc._id as string));
         }
 
         const session = await createSession(params);

@@ -65,7 +65,7 @@ app.use((err: Error, req: Request, res: Response): void => {
             payload,
             err.errorDetails ? err.errorDetails : "",
         );
-        void res.status(err.statusCode).json(payload);
+        res.status(err.statusCode).json(payload);
         return;
     }
     logger.error("Unhandled error:", err);
