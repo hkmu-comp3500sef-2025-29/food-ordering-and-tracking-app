@@ -167,7 +167,7 @@ export async function createApiKey(
         throw transactionErr;
     } finally {
         if (session) {
-            session.endSession();
+            await session.endSession();
         }
     }
 }

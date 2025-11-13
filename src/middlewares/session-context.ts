@@ -64,7 +64,7 @@ export function sessionContext(
                     table = await findTable([
                         WithTableMongoId(session.table),
                     ]);
-                } catch (_error) {
+                } catch {
                     // table lookup is best-effort; keep going if it fails
                     table = null;
                 }

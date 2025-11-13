@@ -143,7 +143,7 @@ async function tryAuthWithCookie(
         }
 
         return true;
-    } catch (_error) {
+    } catch {
         // Any error in cookie processing is silently ignored
         return false;
     }

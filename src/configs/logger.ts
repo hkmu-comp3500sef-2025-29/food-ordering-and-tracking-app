@@ -62,19 +62,19 @@ export const httpLogger = morgan(logFormat, {
 
 // Simple console logger utility
 export const logger = {
-    info: (message: string, ...args: unknown[]) => {
+    info: (message: string, ...args: unknown[]): void => {
         console.log(`\x1b[36m[INFO]\x1b[0m ${message}`, ...args);
     },
-    warn: (message: string, ...args: unknown[]) => {
+    warn: (message: string, ...args: unknown[]): void => {
         console.warn(`\x1b[33m[WARN]\x1b[0m ${message}`, ...args);
     },
-    error: (message: string, ...args: unknown[]) => {
+    error: (message: string, ...args: unknown[]): void => {
         console.error(`\x1b[31m[ERROR]\x1b[0m ${message}`, ...args);
     },
-    success: (message: string, ...args: unknown[]) => {
+    success: (message: string, ...args: unknown[]): void => {
         console.log(`\x1b[32m[SUCCESS]\x1b[0m ${message}`, ...args);
     },
-    debug: (message: string, ...args: unknown[]) => {
+    debug: (message: string, ...args: unknown[]): void => {
         if (process.env.NODE_ENV !== "production") {
             console.log(`\x1b[35m[DEBUG]\x1b[0m ${message}`, ...args);
         }

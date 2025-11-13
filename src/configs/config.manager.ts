@@ -113,14 +113,14 @@ export class ConfigManager implements IConfigManager {
     }
 }
 
-function WithFile(path: string): LoadConfigParam {
+function WithFile(filePath: string): LoadConfigParam {
     return (): DotenvParseOutput | undefined => {
-        if (!fs.existsSync(path)) {
+        if (!fs.existsSync(filePath)) {
             throw new Error(
-                `ConfigManager: File does not exist at path ${path}`,
+                `ConfigManager: File does not exist at path ${filePath}`,
             );
         }
-        const fileContent: string = fs.readFileSync(path, "utf8");
+        const fileContent: string = fs.readFileSync(filePath, "utf8");
         const envContent: DotenvParseOutput = dotenv.parse(fileContent);
         return envContent;
     };

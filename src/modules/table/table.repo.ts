@@ -78,8 +78,8 @@ export async function updateTable(
     if (!doc) return null;
 
     // Filter out undefined values
-    const plain = (updates as Record<string, any>) || {};
-    const toSet: Record<string, any> = {};
+    const plain = (updates as Record<string, unknown>) || {};
+    const toSet: Record<string, unknown> = {};
     for (const [k, v] of Object.entries(plain)) {
         if (v !== undefined) toSet[k] = v;
     }

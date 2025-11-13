@@ -110,15 +110,15 @@ export async function createSession(
         });
 
         await session.commitTransaction();
-        session.endSession();
+        await session.endSession();
         return created as SessionDocument;
     } catch (err) {
         try {
             await session.abortTransaction();
-        } catch (_) {
+        } catch {
             // ignore
         }
-        session.endSession();
+        await session.endSession();
         throw err;
     }
 }

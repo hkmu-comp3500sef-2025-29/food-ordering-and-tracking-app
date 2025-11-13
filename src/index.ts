@@ -1,4 +1,4 @@
-import type { Express, NextFunction, Request, Response } from "express";
+import type { Express, Request, Response } from "express";
 
 import compression from "compression";
 import cookieParser from "cookie-parser";
@@ -48,7 +48,7 @@ app.use("/", router);
 app.use("/static", express.static(PATH_PUBLIC));
 
 // Basic error handler, returns 500 if unhandled
-app.use((err: Error, req: Request, res: Response, _next: NextFunction) => {
+app.use((err: Error, req: Request, res: Response): void => {
     if (isHttpError(err)) {
         const payload = {
             success: false,
@@ -61,10 +61,11 @@ app.use((err: Error, req: Request, res: Response, _next: NextFunction) => {
             payload,
             err.errorDetails ? err.errorDetails : "",
         );
-        return res.status(err.statusCode).json(payload);
+        void res.status(err.statusCode).json(payload);
+        return;
     }
     logger.error("Unhandled error:", err);
-    return res.status(500).json({
+    void res.status(500).json({
         success: false,
         error: "Internal Server Error",
         requestId: req.requestId,
