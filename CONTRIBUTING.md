@@ -29,6 +29,18 @@ For checking with TypeScript Compiler:
 pnpm tsc
 ```
 
+For linting with strict TypeScript rules:
+
+```sh
+pnpm lint
+```
+
+For automatically fixing fixable lint issues:
+
+```sh
+pnpm lint:fix
+```
+
 For checking and formatting code:
 
 ```sh

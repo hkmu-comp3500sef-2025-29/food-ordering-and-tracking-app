@@ -77,12 +77,12 @@ router.post(
         }
         const payload = createOrderSchema.parse(req.body);
         const params = [
-            WithSessionId(req.sessionContext.session._id),
+            WithSessionId(req.sessionContext.session._id as string),
             WithDishItems(
                 payload.items.map((item) => ({
                     dish_id: item.dishId,
-                    quantity: item.quantity,
-                    customer_notes: item.notes,
+                    quantity: item.quantity || 1,
+                    customer_notes: item.notes || "",
                 })),
             ),
         ];

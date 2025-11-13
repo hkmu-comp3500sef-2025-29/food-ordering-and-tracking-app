@@ -44,7 +44,7 @@ export function apiKeyAuth(
         const apiKey = extractApiKey(req);
         if (!apiKey) {
             if (optional) {
-                req.role = undefined;
+                // Optional auth failed - don't set role at all
                 return;
             }
             throw errors.unauthorized("API key required");
