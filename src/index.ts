@@ -6,6 +6,7 @@ import express from "express";
 import helmet from "helmet";
 
 import { ConfigManager } from "#/configs/config.manager.js";
+import { helmetConfig } from "#/configs/helmet.js";
 import { httpLogger, logger } from "#/configs/logger.js";
 import { initDatabase, loadTrustedIps } from "#/configs/root.init.js";
 import { PATH_PUBLIC, PATH_VIEWS } from "#/constants/index.js";
@@ -20,7 +21,7 @@ const app: Express = express();
 // Security & performance middleware
 app.use(requestContext);
 app.use(responseTimer);
-app.use(helmet());
+app.use(helmet(helmetConfig));
 app.use(compression());
 app.use(httpLogger);
 

@@ -42,10 +42,6 @@ staffSchema.set("toJSON", {
     virtuals: true,
 });
 
-staffSchema.index({
-    name: 1,
-});
-
 const StaffModel = model(STAFF_COLLECTION_NAME, staffSchema);
 
 type StaffDocument = mongoose.InferSchemaType<typeof staffSchema> &

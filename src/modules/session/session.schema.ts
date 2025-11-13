@@ -35,9 +35,6 @@ const sessionSchema = new Schema({
 });
 
 sessionSchema.index({
-    uuid: 1,
-});
-sessionSchema.index({
     table: 1,
     status: 1,
 });

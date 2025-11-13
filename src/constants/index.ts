@@ -28,13 +28,15 @@ const PATH_ENV: string = IS_PRD
  * The path to the views directory.
  */
 const PATH_VIEWS: string = IS_PRD
-    ? path.join(PATH_ROOT, "views")
+    ? path.join(PATH_ROOT, "dist", "views")
     : path.join(PATH_ROOT, "src", "views");
 
 /**
  * The path to the public directory.
  */
-const PATH_PUBLIC: string = path.join(PATH_ROOT, "public");
+const PATH_PUBLIC: string = IS_PRD
+    ? path.join(PATH_ROOT, "dist", "public")
+    : path.join(PATH_ROOT, "public");
 
 export {
     NODE_ENV,

@@ -11,7 +11,9 @@ RUN pnpm -w install --frozen-lockfile && pnpm -w build && pnpm -w prune --prod
 
 WORKDIR /output
 
-RUN cp -r /app/dist ./dist && cp -r /app/node_modules ./node_modules && cp /app/package.json ./package.json
+RUN cp -r /app/dist ./dist && \
+    cp -r /app/node_modules ./node_modules && \
+    cp /app/package.json ./package.json
 
 FROM node:24-alpine AS runtime
 WORKDIR /app

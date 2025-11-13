@@ -35,10 +35,6 @@ const dishSchema = new Schema({
     },
 });
 
-dishSchema.index({
-    name: 1,
-});
-
 const DishModel = model(DISH_COLLECTION_NAME, dishSchema);
 type DishDocument = mongoose.InferSchemaType<typeof dishSchema> &
     mongoose.Document;

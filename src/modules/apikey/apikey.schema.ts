@@ -22,10 +22,6 @@ const apikeySchema = new Schema({
     },
 });
 
-apikeySchema.index({
-    apiKey: 1,
-});
-
 apikeySchema.post(
     /findOneAndDelete|findOneAndRemove/,
     async (doc: ApiKeyDocument) => {
