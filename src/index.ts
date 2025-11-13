@@ -69,7 +69,7 @@ app.use((err: Error, req: Request, res: Response): void => {
         return;
     }
     logger.error("Unhandled error:", err);
-    void res.status(500).json({
+    res.status(500).json({
         success: false,
         error: "Internal Server Error",
         requestId: req.requestId,
