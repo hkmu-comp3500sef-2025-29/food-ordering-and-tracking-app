@@ -43,9 +43,13 @@ app.set("view engine", "ejs");
 
 app.set("views", PATH_VIEWS);
 
-app.use("/", router);
-
+// Serve static files before routing
 app.use("/static", express.static(PATH_PUBLIC));
+
+// Serve favicon
+app.use(express.static(PATH_PUBLIC));
+
+app.use("/", router);
 
 // Basic error handler, returns 500 if unhandled
 app.use((err: Error, req: Request, res: Response): void => {
