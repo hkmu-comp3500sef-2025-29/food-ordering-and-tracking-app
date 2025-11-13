@@ -1,5 +1,4 @@
 import type { ObjectId } from "mongodb";
-
 import type { FilterQuery } from "mongoose";
 
 import type { Param } from "#/modules/common/repo.js";
@@ -31,7 +30,10 @@ export async function createTable(
     try {
         await created.save();
     } catch (err) {
-        const mongoErr = err as { code?: number; name?: string };
+        const mongoErr = err as {
+            code?: number;
+            name?: string;
+        };
         const isDup =
             mongoErr.code === 11000 ||
             mongoErr.code === 11001 ||
@@ -118,9 +120,15 @@ export const WithMongoId = (id: string | ObjectId): TableParam =>
     WithMongoIdGeneric<TableDocument>(id);
 
 export const WithTableId = (tableId: number): TableParam => {
-    return WithField<TableDocument, "tableId">("tableId", tableId as unknown as TableDocument["tableId"]);
+    return WithField<TableDocument, "tableId">(
+        "tableId",
+        tableId as unknown as TableDocument["tableId"],
+    );
 };
 
 export const WithAvailable = (available: boolean): TableParam => {
-    return WithField<TableDocument, "available">("available", available as unknown as TableDocument["available"]);
+    return WithField<TableDocument, "available">(
+        "available",
+        available as unknown as TableDocument["available"],
+    );
 };

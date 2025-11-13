@@ -1,5 +1,7 @@
-import rateLimit from "express-rate-limit";
 import type { Request } from "express";
+
+import rateLimit from "express-rate-limit";
+
 import { logger } from "#/configs/logger.js";
 
 const isDevelopment = process.env.NODE_ENV !== "production";

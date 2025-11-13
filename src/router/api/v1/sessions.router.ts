@@ -1,7 +1,8 @@
+import type { ObjectId } from "mongodb";
+
 import { Router } from "express";
 import { z } from "zod";
 
-import { ObjectId } from "mongodb";
 import {
     apiKeyAuth,
     asyncHandler,
@@ -138,7 +139,9 @@ router.post(
             if (!tableDoc) {
                 throw errors.notFound("Table not found");
             }
-            params.push(WithSessionTableId(tableDoc._id as unknown as ObjectId));
+            params.push(
+                WithSessionTableId(tableDoc._id as unknown as ObjectId),
+            );
         }
 
         const session = await createSession(params);

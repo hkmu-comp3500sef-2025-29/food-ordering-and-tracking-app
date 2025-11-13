@@ -8,6 +8,8 @@
         "allowUnreachableCode": false,
         "allowUnusedLabels": false,
         "exactOptionalPropertyTypes": true,
+        "useUnknownInCatchVariables": true,
+        "verbatimModuleSyntax": true,
         "paths": {
             "#/*": [
                 "./src/*"

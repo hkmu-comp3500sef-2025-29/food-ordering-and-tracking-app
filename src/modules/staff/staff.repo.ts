@@ -1,6 +1,6 @@
-import type { Param } from "#/modules/common/repo.js";
-
 import type { FilterQuery } from "mongoose";
+
+import type { Param } from "#/modules/common/repo.js";
 
 import { ObjectId } from "mongodb";
 

@@ -1,7 +1,7 @@
+import type { FilterQuery } from "mongoose";
+
 import type { Param } from "#/modules/common/repo.js";
 import type { SessionDocument } from "#/modules/session/session.schema.js";
-
-import type { FilterQuery } from "mongoose";
 
 import crypto from "node:crypto";
 
@@ -140,9 +140,13 @@ export async function closeSession(
         status: "closed",
         closedAt: new Date(),
     };
-    const doc = await SessionModel.findOneAndUpdate(query as FilterQuery<SessionDocument>, updates, {
-        new: true,
-    }).exec();
+    const doc = await SessionModel.findOneAndUpdate(
+        query as FilterQuery<SessionDocument>,
+        updates,
+        {
+            new: true,
+        },
+    ).exec();
     if (!doc) return null;
     return doc as SessionDocument;
 }
@@ -160,7 +164,9 @@ export async function findSession(
         }
     }
 
-    const doc = await SessionModel.findOne(query as FilterQuery<SessionDocument>).exec();
+    const doc = await SessionModel.findOne(
+        query as FilterQuery<SessionDocument>,
+    ).exec();
     if (!doc) return null;
     return doc as SessionDocument;
 }
@@ -177,7 +183,9 @@ export async function findSessions(
             logger.warn("Skipping invalid param.");
         }
     }
-    const docs = await SessionModel.find(query as FilterQuery<SessionDocument>).exec();
+    const docs = await SessionModel.find(
+        query as FilterQuery<SessionDocument>,
+    ).exec();
     return docs as SessionDocument[];
 }
 
@@ -195,9 +203,13 @@ export async function updateSession(
         }
     }
 
-    const doc = await SessionModel.findOneAndUpdate(query as FilterQuery<SessionDocument>, updates, {
-        new: true,
-    }).exec();
+    const doc = await SessionModel.findOneAndUpdate(
+        query as FilterQuery<SessionDocument>,
+        updates,
+        {
+            new: true,
+        },
+    ).exec();
     if (!doc) return null;
     return doc as SessionDocument;
 }
@@ -215,7 +227,9 @@ export async function deleteSession(
         }
     }
 
-    const result = await SessionModel.deleteOne(query as FilterQuery<SessionDocument>).exec();
+    const result = await SessionModel.deleteOne(
+        query as FilterQuery<SessionDocument>,
+    ).exec();
     return result.deletedCount === 1;
 }
 

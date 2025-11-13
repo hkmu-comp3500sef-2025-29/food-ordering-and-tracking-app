@@ -1,7 +1,8 @@
+import type mongoose from "mongoose";
+
 import type { Param } from "#/modules/common/repo.js";
 
 import { ObjectId } from "mongodb";
-import mongoose from "mongoose";
 
 /**
  * Generic Param factory that sets the MongoDB _id on a Partial<T>.
