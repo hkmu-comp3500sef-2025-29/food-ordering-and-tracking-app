@@ -27,8 +27,8 @@ const tableSchema = new Schema({
 });
 
 // pre-save hook to assign an auto-incrementing tableId when not provided
-tableSchema.pre("save", async function (next) {
-    const doc = this as any;
+tableSchema.pre("save", async function (this: mongoose.Document & { tableId?: number; isNew?: boolean }, next) {
+    const doc = this;
     try {
         if (doc.isNew && (doc.tableId === undefined || doc.tableId === null)) {
             const agg = await mongoose.connection
@@ -67,7 +67,7 @@ tableSchema.pre("save", async function (next) {
         }
         next();
     } catch (err) {
-        next(err as any);
+        next(err as Error);
     }
 });
 

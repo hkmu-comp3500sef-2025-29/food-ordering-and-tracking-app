@@ -1,16 +1,15 @@
 import type { Param } from "#/modules/common/repo.js";
 
 import { ObjectId } from "mongodb";
+import mongoose from "mongoose";
 
 /**
  * Generic Param factory that sets the MongoDB _id on a Partial<T>.
  * Useful across modules that use ObjectId primary keys.
  */
-export function WithMongoId<
-    T extends {
-        _id?: any;
-    },
->(id: string | ObjectId): Param<T> {
+export function WithMongoId<T extends mongoose.Document>(
+    id: string | ObjectId,
+): Param<T> {
     return async (config: Partial<T>): Promise<void> => {
         let objectId: ObjectId;
         if (id instanceof ObjectId) {
@@ -21,13 +20,7 @@ export function WithMongoId<
             }
             objectId = new ObjectId(id);
         }
-        (
-            config as Partial<
-                T & {
-                    _id?: ObjectId;
-                }
-            >
-        )._id = objectId;
+        config._id = objectId;
     };
 }
 

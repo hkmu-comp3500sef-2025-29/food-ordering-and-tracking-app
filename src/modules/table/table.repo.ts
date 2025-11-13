@@ -1,5 +1,7 @@
 import type { ObjectId } from "mongodb";
 
+import type { FilterQuery } from "mongoose";
+
 import type { Param } from "#/modules/common/repo.js";
 
 import { DatabaseManager } from "#/configs/database.js";
@@ -28,12 +30,12 @@ export async function createTable(
     const created = new Table(config);
     try {
         await created.save();
-    } catch (err: any) {
+    } catch (err) {
+        const mongoErr = err as { code?: number; name?: string };
         const isDup =
-            err &&
-            (err.code === 11000 ||
-                err.code === 11001 ||
-                err.name === "MongoServerError");
+            mongoErr.code === 11000 ||
+            mongoErr.code === 11001 ||
+            mongoErr.name === "MongoServerError";
         if (isDup) {
             throw new Error("tableId already exists");
         }
@@ -54,7 +56,7 @@ export async function findTable(
             logger.warn("Skipping invalid param.");
         }
     }
-    return Table.findOne(query as any).exec();
+    return Table.findOne(query as FilterQuery<TableDocument>).exec();
 }
 
 export async function updateTable(
@@ -70,7 +72,7 @@ export async function updateTable(
             logger.warn("Skipping invalid param.");
         }
     }
-    const doc = await Table.findOne(query as any).exec();
+    const doc = await Table.findOne(query as FilterQuery<TableDocument>).exec();
     if (!doc) return null;
 
     // Filter out undefined values
@@ -109,16 +111,16 @@ export async function deleteTable(params: TableParam[]): Promise<{
             logger.warn("Skipping invalid param.");
         }
     }
-    return Table.deleteOne(query as any).exec();
+    return Table.deleteOne(query as FilterQuery<TableDocument>).exec();
 }
 
 export const WithMongoId = (id: string | ObjectId): TableParam =>
     WithMongoIdGeneric<TableDocument>(id);
 
 export const WithTableId = (tableId: number): TableParam => {
-    return WithField<TableDocument, "tableId">("tableId", tableId as any);
+    return WithField<TableDocument, "tableId">("tableId", tableId as unknown as TableDocument["tableId"]);
 };
 
 export const WithAvailable = (available: boolean): TableParam => {
-    return WithField<TableDocument, "available">("available", available as any);
+    return WithField<TableDocument, "available">("available", available as unknown as TableDocument["available"]);
 };

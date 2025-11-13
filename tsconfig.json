@@ -5,6 +5,9 @@
         "moduleResolution": "nodenext",
         "rootDir": "./src",
         "outDir": "./dist",
+        "allowUnreachableCode": false,
+        "allowUnusedLabels": false,
+        "exactOptionalPropertyTypes": true,
         "paths": {
             "#/*": [
                 "./src/*"
