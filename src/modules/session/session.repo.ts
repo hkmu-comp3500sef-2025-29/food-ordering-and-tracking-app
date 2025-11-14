@@ -1,3 +1,5 @@
+import type { FilterQuery } from "mongoose";
+
 import type { Param } from "#/modules/common/repo.js";
 import type { SessionDocument } from "#/modules/session/session.schema.js";
 
@@ -99,7 +101,7 @@ export async function createSession(
                 throw new Error("No available tables");
             }
             tableId = picked._id as ObjectId;
-            config.table = tableId as any;
+            config.table = tableId;
         }
 
         const created = new SessionModel(config);
@@ -108,15 +110,15 @@ export async function createSession(
         });
 
         await session.commitTransaction();
-        session.endSession();
+        await session.endSession();
         return created as SessionDocument;
     } catch (err) {
         try {
             await session.abortTransaction();
-        } catch (_) {
+        } catch {
             // ignore
         }
-        session.endSession();
+        await session.endSession();
         throw err;
     }
 }
@@ -138,9 +140,13 @@ export async function closeSession(
         status: "closed",
         closedAt: new Date(),
     };
-    const doc = await SessionModel.findOneAndUpdate(query as any, updates, {
-        new: true,
-    }).exec();
+    const doc = await SessionModel.findOneAndUpdate(
+        query as FilterQuery<SessionDocument>,
+        updates,
+        {
+            new: true,
+        },
+    ).exec();
     if (!doc) return null;
     return doc as SessionDocument;
 }
@@ -158,7 +164,9 @@ export async function findSession(
         }
     }
 
-    const doc = await SessionModel.findOne(query as any).exec();
+    const doc = await SessionModel.findOne(
+        query as FilterQuery<SessionDocument>,
+    ).exec();
     if (!doc) return null;
     return doc as SessionDocument;
 }
@@ -175,7 +183,9 @@ export async function findSessions(
             logger.warn("Skipping invalid param.");
         }
     }
-    const docs = await SessionModel.find(query as any).exec();
+    const docs = await SessionModel.find(
+        query as FilterQuery<SessionDocument>,
+    ).exec();
     return docs as SessionDocument[];
 }
 
@@ -193,9 +203,13 @@ export async function updateSession(
         }
     }
 
-    const doc = await SessionModel.findOneAndUpdate(query as any, updates, {
-        new: true,
-    }).exec();
+    const doc = await SessionModel.findOneAndUpdate(
+        query as FilterQuery<SessionDocument>,
+        updates,
+        {
+            new: true,
+        },
+    ).exec();
     if (!doc) return null;
     return doc as SessionDocument;
 }
@@ -213,7 +227,9 @@ export async function deleteSession(
         }
     }
 
-    const result = await SessionModel.deleteOne(query as any).exec();
+    const result = await SessionModel.deleteOne(
+        query as FilterQuery<SessionDocument>,
+    ).exec();
     return result.deletedCount === 1;
 }
 

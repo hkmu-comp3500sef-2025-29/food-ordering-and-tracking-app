@@ -1,3 +1,5 @@
+import type { Request } from "express";
+
 import rateLimit from "express-rate-limit";
 
 import { logger } from "#/configs/logger.js";
@@ -7,12 +9,12 @@ const isDevelopment = process.env.NODE_ENV !== "production";
 /**
  * Skip rate limiting for development environment and localhost
  */
-const skipRateLimiting = (req: any): boolean => {
+const skipRateLimiting = (req: Request): boolean => {
     if (isDevelopment) {
         return true;
     }
 
-    const ip = req.ip || req.connection?.remoteAddress || "";
+    const ip = req.ip || req.socket?.remoteAddress || "";
     const isLocalhost =
         ip === "127.0.0.1" ||
         ip === "::1" ||

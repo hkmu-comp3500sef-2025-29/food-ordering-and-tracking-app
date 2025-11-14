@@ -44,7 +44,7 @@ export function apiKeyAuth(
         const apiKey = extractApiKey(req);
         if (!apiKey) {
             if (optional) {
-                req.role = undefined;
+                // Optional auth failed - don't set role at all
                 return;
             }
             throw errors.unauthorized("API key required");
@@ -143,7 +143,7 @@ async function tryAuthWithCookie(
         }
 
         return true;
-    } catch (_error) {
+    } catch {
         // Any error in cookie processing is silently ignored
         return false;
     }

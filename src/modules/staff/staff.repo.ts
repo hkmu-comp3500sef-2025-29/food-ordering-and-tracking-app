@@ -1,3 +1,5 @@
+import type { FilterQuery } from "mongoose";
+
 import type { Param } from "#/modules/common/repo.js";
 
 import { ObjectId } from "mongodb";
@@ -114,7 +116,7 @@ export async function findStaff(
         }
     }
 
-    const doc = await Staff.findOne(query as any).exec();
+    const doc = await Staff.findOne(query as FilterQuery<StaffDocument>).exec();
     if (!doc) return null;
     return doc as StaffDocument;
 }
@@ -218,7 +220,7 @@ export async function findStaffs(
     if (q.sort === "asc") sortDirection = 1;
     else if (q.sort === "desc") sortDirection = -1;
 
-    let query = Staff.find(filter as any);
+    let query = Staff.find(filter as FilterQuery<StaffDocument>);
     if (sortDirection !== null) {
         query = query.sort({
             name: sortDirection,

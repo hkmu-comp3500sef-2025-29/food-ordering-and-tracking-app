@@ -61,10 +61,7 @@ export async function initDatabase(): Promise<void> {
             }).exec();
             if (namedAdmin) {
                 try {
-                    const apiKey = await createApiKey(
-                        [],
-                        namedAdmin._id as any,
-                    );
+                    const apiKey = await createApiKey([], namedAdmin._id);
                     logger.info(
                         `Created initial API key for existing admin '${initName}':`,
                         apiKey,
@@ -97,7 +94,7 @@ export async function initDatabase(): Promise<void> {
                     apiKey: [],
                 });
                 try {
-                    const apiKey = await createApiKey([], created._id as any);
+                    const apiKey = await createApiKey([], created._id);
                     logger.info("Initial admin created:", initName);
                     logger.info(
                         "Initial admin API key (store this securely):",

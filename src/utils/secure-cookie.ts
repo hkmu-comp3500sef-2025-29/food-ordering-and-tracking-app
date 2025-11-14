@@ -111,7 +111,7 @@ export function parseAuthCookie(cookieValue: string): AuthCookiePayload | null {
         }
 
         return payload;
-    } catch (_error) {
+    } catch {
         return null;
     }
 }
@@ -125,7 +125,14 @@ export function shouldRefreshCookie(payload: AuthCookiePayload): boolean {
     return timeUntilExpiry > 0 && timeUntilExpiry <= REFRESH_THRESHOLD;
 }
 
-export function getCookieConfig() {
+export function getCookieConfig(): {
+    name: string;
+    maxAge: number;
+    httpOnly: boolean;
+    secure: boolean;
+    sameSite: "strict";
+    path: string;
+} {
     return {
         name: COOKIE_NAME,
         maxAge: COOKIE_MAX_AGE,

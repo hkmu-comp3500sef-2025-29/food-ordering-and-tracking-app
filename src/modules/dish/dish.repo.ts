@@ -1,4 +1,5 @@
 import type { ObjectId } from "mongodb";
+import type { FilterQuery } from "mongoose";
 
 import type { Param } from "#/modules/common/repo.js";
 
@@ -32,12 +33,15 @@ export async function createDish(params: DishParam[]): Promise<DishDocument> {
     const created = new Dish(config);
     try {
         await created.save();
-    } catch (err: any) {
+    } catch (err) {
+        const mongoErr = err as {
+            code?: number;
+            name?: string;
+        };
         const isDup =
-            err &&
-            (err.code === 11000 ||
-                err.code === 11001 ||
-                err.name === "MongoServerError");
+            mongoErr.code === 11000 ||
+            mongoErr.code === 11001 ||
+            mongoErr.name === "MongoServerError";
         if (isDup) {
             throw new Error("Dish name already exists");
         }
@@ -59,7 +63,7 @@ export async function findDish(
             logger.warn("Skipping invalid param.");
         }
     }
-    return Dish.findOne(query as any).exec();
+    return Dish.findOne(query as FilterQuery<DishDocument>).exec();
 }
 
 export async function findDishes(params: DishParam[]): Promise<DishDocument[]> {
@@ -74,7 +78,7 @@ export async function findDishes(params: DishParam[]): Promise<DishDocument[]> {
         }
     }
 
-    const query: Record<string, any> = {};
+    const query: Record<string, unknown> = {};
 
     if (raw.name !== undefined) {
         if (typeof raw.name === "string" && raw.name.length > 0) {
@@ -126,12 +130,12 @@ export async function updateDish(
             logger.warn("Skipping invalid param.");
         }
     }
-    const doc = await Dish.findOne(query as any).exec();
+    const doc = await Dish.findOne(query as FilterQuery<DishDocument>).exec();
     if (!doc) return null;
 
     // Filter out undefined values
-    const plain = (updates as Record<string, any>) || {};
-    const toSet: Record<string, any> = {};
+    const plain = (updates as Record<string, unknown>) || {};
+    const toSet: Record<string, unknown> = {};
     for (const [k, v] of Object.entries(plain)) {
         if (v !== undefined) toSet[k] = v;
     }
@@ -156,7 +160,7 @@ export async function deleteDish(params: DishParam[]): Promise<{
             logger.warn("Skipping invalid param.");
         }
     }
-    return Dish.deleteOne(query as any).exec();
+    return Dish.deleteOne(query as FilterQuery<DishDocument>).exec();
 }
 
 export const WithMongoId = (id: string | ObjectId): DishParam =>

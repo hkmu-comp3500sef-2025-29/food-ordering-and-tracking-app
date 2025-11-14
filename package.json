@@ -3,9 +3,11 @@
     "type": "module",
     "scripts": {
         "tsc": "tsc --noEmit",
+        "lint": "biome lint src",
+        "lint:fix": "biome check --write .",
         "fmt": "biome check --write .",
         "dev": "tsx ./src/index.ts",
-        "build": "rimraf ./dist && tsc && tsc-alias && cpy \"src/views/**/*\" dist/views && cpy \"public/**/*\" dist/public",
+        "build": "pnpm lint && rimraf ./dist && tsc && tsc-alias && cpy \"src/views/**/*\" dist/views && cpy \"public/**/*\" dist/public",
         "start": "cross-env NODE_ENV=production node ./dist/index.js"
     },
     "dependencies": {

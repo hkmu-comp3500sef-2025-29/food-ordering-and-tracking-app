@@ -137,7 +137,7 @@ router.post(
             if (!tableDoc) {
                 throw errors.notFound("Table not found");
             }
-            params.push(WithSessionTableId(tableDoc._id as any));
+            params.push(WithSessionTableId(tableDoc._id as string));
         }
 
         const session = await createSession(params);
