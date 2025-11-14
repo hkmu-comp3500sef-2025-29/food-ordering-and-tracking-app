@@ -43,11 +43,8 @@ app.set("view engine", "ejs");
 
 app.set("views", PATH_VIEWS);
 
-// Serve static files before routing
+// Serve static files (all public assets are exposed under `/static`)
 app.use("/static", express.static(PATH_PUBLIC));
-
-// Serve favicon
-app.use(express.static(PATH_PUBLIC));
 
 app.use("/", router);
 

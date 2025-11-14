@@ -73,6 +73,9 @@ tableSchema.pre(
                         upsert: true,
                     },
                 ).exec();
+                if (!counter) {
+                    throw new Error("Failed to generate tableId counter");
+                }
                 this.tableId = counter.seq;
             }
             next();
