@@ -2,5 +2,24 @@
     "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
     "extends": [
         "@apst/biome"
-    ]
+    ],
+    "linter": {
+        "enabled": true,
+        "rules": {
+            "recommended": true,
+            "nursery": {
+                "noFloatingPromises": "error",
+                "noShadow": "error"
+            },
+            "complexity": {
+                "noImplicitCoercions": "error"
+            },
+            "correctness": {
+                "noUnusedVariables": "error"
+            },
+            "suspicious": {
+                "noExplicitAny": "warn"
+            }
+        }
+    }
 }
