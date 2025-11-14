@@ -20,37 +20,15 @@ export default [
             "@typescript-eslint": tseslint.plugin,
         },
         rules: {
-            // ========== Strictness Rules Beyond TSConfig ==========
-
-            /**
-             * Completely forbids the use of 'any' type.
-             * This is a stricter rule than 'noImplicitAny'.
-             */
+            // Disallow use of the `any` type - enforces type safety
             "@typescript-eslint/no-explicit-any": "error",
-
-            /**
-             * Enforces that all Promises must be awaited or handled with .then().
-             * This prevents forgotten Promises, similar to Go's mandatory 'if err != nil' checks.
-             */
+            // Disallow floating promises - ensures all promises are properly handled
             "@typescript-eslint/no-floating-promises": "error",
-
-            /**
-             * Enforces explicit return types for all exported functions and class methods.
-             * (You may already have 'noImplicitReturns', but this rule is stricter)
-             */
+            // Require explicit return types on functions - improves code documentation
             "@typescript-eslint/explicit-module-boundary-types": "error",
-
-            /**
-             * Go does not allow implicit type conversions, nor should TypeScript.
-             * This forbids implicit coercions like `!!string` (use `string !== ''` instead)
-             * or `+string` (use `Number(string)` instead).
-             */
+            // Disallow implicit type coercion - prevents unexpected type conversions
             "no-implicit-coercion": "error",
-
-            /**
-             * Go linters catch variable shadowing (Shadowing).
-             * Forbids variable shadowing, a common linter rule in Go (go vet).
-             */
+            // Disallow variable shadowing - prevents confusion from reusing variable names
             "@typescript-eslint/no-shadow": "error",
         },
     },
