@@ -13,7 +13,7 @@ services:
       # Generate your own secret for production use (openssl rand -base64 32)
       # For example, a random base64 string (don't use this in production):
       # - COOKIE_SECRET=vyH37xWoS4pItUt+od48PY4jU0/3qzfPgK1t5fJr8Fs=
-      - COOKIE_SECRET=vyH37xWoS4pItUt+od48PY4jU0/3qzfPgK1t5fJr8Fs=
+      - COOKIE_SECRET=
     ports:
       - "3000:3000"
     depends_on:
