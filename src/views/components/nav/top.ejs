@@ -1,11 +1,9 @@
 <header>
-    <div>
-        <strong><%= (navContext && navContext.restaurantName) || "Restaurant" %></strong>
-    </div>
-    <% if (navContext && navContext.tableNumber) { %>
-        <div>Table <%= navContext.tableNumber %></div>
-    <% } %>
-    <div>
-        <a href="/settings">Settings</a>
+    <div id="top-bar">
+        <span id="restaurant-icon"></span>
+        <% if (navContext && navContext.tableNumber) { %>
+            <div>TableNo. <%= navContext.tableNumber %></div>
+        <% } %>
+        <button id="setting-btn"><img id="setting_icon" src="/static/styles/img/setting_icon.png"></button>
     </div>
 </header>

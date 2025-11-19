@@ -34,9 +34,7 @@ const PATH_VIEWS: string = IS_PRD
 /**
  * The path to the public directory.
  */
-const PATH_PUBLIC: string = IS_PRD
-    ? path.join(PATH_ROOT, "dist", "public")
-    : path.join(PATH_ROOT, "public");
+const PATH_PUBLIC: string = path.join(PATH_ROOT, "dist", "public");
 
 export {
     NODE_ENV,

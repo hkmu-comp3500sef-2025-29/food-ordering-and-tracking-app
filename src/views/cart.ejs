@@ -5,16 +5,24 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Cart</title>
+    <link rel="stylesheet" href="/static/styles/top-bar/top-bar.css">
+    <link rel="stylesheet" href="/static/styles/setting/setting.css">
+    <link rel="stylesheet" href="/static/styles/cart/cart.css">
 </head>
 
 <body>
     <%- include("components/nav/top"); -%>
-    <%- include("components/nav/bottom"); -%>
+    <%- include("components/sidebar/setting"); -%>
     <main>
-        <h2>Cart Summary</h2>
-        <p>Your selected items will appear here with quantities and total price.</p>
+        <div id="outer-container">
+            <div id="cart-container">
+                <!-- Items added in script -->
+            </div>
+        </div>
+
         <button type="button">Place Order</button>
     </main>
+    <script type="module" src="/static/scripts/cart/cart.js"></script>
 </body>
 
 </html>

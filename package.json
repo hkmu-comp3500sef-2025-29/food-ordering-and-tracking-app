@@ -5,7 +5,7 @@
         "tsc": "tsc --noEmit",
         "fmt": "biome check --write .",
         "dev": "tsx ./src/index.ts",
-        "build": "rimraf ./dist && tsc && tsc-alias && cpy \"src/views/**/*\" dist/views && cpy \"public/**/*\" dist/public",
+        "build": "rimraf ./dist && cpy \"public/**/*\" dist/public && tsc -p tsconfig.client.json && tsc && tsc-alias && cpy \"src/views/**/*\" dist/views",
         "start": "cross-env NODE_ENV=production node ./dist/index.js"
     },
     "dependencies": {
