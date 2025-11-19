@@ -5,19 +5,19 @@ import { exit } from "node:process";
 import dotenv, { type DotenvParseOutput } from "dotenv";
 import { ZodError } from "zod";
 
-import { logger } from "#/configs/logger";
+import { logger } from "#/configs/logger.js";
 import {
     type Config,
     type ConfigKey,
     configSchema,
-} from "./schema/config.schema";
+} from "#/configs/schema/config.schema.js";
 
 interface IConfigManager {
     get<T extends ConfigKey>(key: T): Config[T];
     has(key: ConfigKey): boolean;
 }
 
-type LoadConfigParam = () => Promise<DotenvParseOutput | undefined>;
+type LoadConfigParam = () => DotenvParseOutput | undefined;
 
 const PATH_ROOT = process.cwd();
 
@@ -37,10 +37,14 @@ export class ConfigManager implements IConfigManager {
         }
         if (NODE_ENV === "production") {
             envpath = path.resolve(PATH_ROOT, ".env.production");
-            functions.push(WithFile(envpath));
+            if (fs.existsSync(envpath)) {
+                functions.push(WithFile(envpath));
+            }
         } else if (NODE_ENV === "development") {
             envpath = path.resolve(PATH_ROOT, ".env.development");
-            functions.push(WithFile(envpath));
+            if (fs.existsSync(envpath)) {
+                functions.push(WithFile(envpath));
+            }
         }
         envpath = fs.existsSync(
             path.resolve(PATH_ROOT, `.env.${NODE_ENV}.local`),
@@ -56,11 +60,11 @@ export class ConfigManager implements IConfigManager {
         this.loadConfig(functions);
     }
 
-    private async loadConfig(params: LoadConfigParam[]): Promise<void> {
+    private loadConfig(params: LoadConfigParam[]): void {
         let envContent: DotenvParseOutput = {};
         for (const param of params) {
             try {
-                const result = await param();
+                const result = param();
                 if (result) {
                     envContent = {
                         ...envContent,
@@ -109,14 +113,14 @@ export class ConfigManager implements IConfigManager {
     }
 }
 
-function WithFile(path: string): LoadConfigParam {
-    return async (): Promise<DotenvParseOutput | undefined> => {
-        if (!fs.existsSync(path)) {
+function WithFile(filePath: string): LoadConfigParam {
+    return (): DotenvParseOutput | undefined => {
+        if (!fs.existsSync(filePath)) {
             throw new Error(
-                `ConfigManager: File does not exist at path ${path}`,
+                `ConfigManager: File does not exist at path ${filePath}`,
             );
         }
-        const fileContent: string = fs.readFileSync(path, "utf8");
+        const fileContent: string = fs.readFileSync(filePath, "utf8");
         const envContent: DotenvParseOutput = dotenv.parse(fileContent);
         return envContent;
     };

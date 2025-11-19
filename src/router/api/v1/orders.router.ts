@@ -7,7 +7,7 @@ import {
     orderCreationLimiter,
     requireStaffRole,
     sessionContext,
-} from "#/middlewares";
+} from "#/middlewares/index.js";
 import {
     createOrder,
     findOrder,
@@ -19,8 +19,8 @@ import {
     WithMongoId,
     WithSessionId,
     WithSort,
-} from "#/modules/order/order.repo";
-import { httpErrors as errors } from "#/utils/error";
+} from "#/modules/order/order.repo.js";
+import { httpErrors as errors } from "#/utils/error/index.js";
 
 const router: Router = Router({
     mergeParams: true,
@@ -77,12 +77,12 @@ router.post(
         }
         const payload = createOrderSchema.parse(req.body);
         const params = [
-            WithSessionId(req.sessionContext.session._id as any),
+            WithSessionId(req.sessionContext.session._id as string),
             WithDishItems(
                 payload.items.map((item) => ({
                     dish_id: item.dishId,
-                    quantity: item.quantity,
-                    customer_notes: item.notes,
+                    quantity: item.quantity || 1,
+                    customer_notes: item.notes || "",
                 })),
             ),
         ];

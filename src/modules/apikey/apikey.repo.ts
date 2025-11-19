@@ -1,20 +1,67 @@
-import type { FilterQuery } from "mongoose";
+import type { ClientSession, FilterQuery } from "mongoose";
 
-import type { Param } from "#/modules/common/repo";
+import type { Param } from "#/modules/common/repo.js";
 
 import crypto from "node:crypto";
 
 import { ObjectId } from "mongodb";
 
-import { logger } from "#/configs/logger";
-import { ApiKey, type ApiKeyDocument } from "#/modules/apikey/apikey.schema";
+import { logger } from "#/configs/logger.js";
+import { ApiKey, type ApiKeyDocument } from "#/modules/apikey/apikey.schema.js";
 import {
     WithField,
     WithMongoId as WithMongoIdGeneric,
-} from "#/modules/common/params";
-import { Staff, type StaffDocument } from "#/modules/staff/staff.schema";
+} from "#/modules/common/params.js";
+import { Staff } from "#/modules/staff/staff.schema.js";
 
 type ApiKeyParam = Param<ApiKeyDocument>;
+
+async function addApiKeyToStaff(
+    staffObjectId: ObjectId,
+    apiKey: string,
+    session?: ClientSession,
+): Promise<void> {
+    const result = await Staff.findByIdAndUpdate(
+        staffObjectId,
+        {
+            $addToSet: {
+                apiKey,
+            },
+        },
+        {
+            new: true,
+            ...(session && {
+                session,
+            }),
+        },
+    ).exec();
+
+    if (!result) {
+        throw new Error(
+            `Staff member with ID ${staffObjectId.toString()} not found`,
+        );
+    }
+}
+
+function isTransactionUnsupportedError(error: unknown): boolean {
+    if (typeof error !== "object" || error === null) {
+        return false;
+    }
+
+    const err = error as {
+        code?: number;
+        codeName?: string;
+        message?: string;
+    };
+
+    return (
+        err.code === 20 ||
+        err.codeName === "IllegalOperation" ||
+        err.message?.includes("Transaction numbers") === true ||
+        (err.message?.includes("transaction") === true &&
+            err.message?.includes("not supported") === true)
+    );
+}
 
 export async function createApiKey(
     params: ApiKeyParam[],
@@ -24,13 +71,11 @@ export async function createApiKey(
         throw new Error("staffId must be provided when creating an API key");
     }
 
-    // ensure database manager is initialized and connected
-
     const apikey: Partial<ApiKeyDocument> = {
         apiKey: crypto.randomBytes(32).toString("hex"),
         createdAt: new Date(),
-        // expiredAt will be set by params if needed, default is forever
     };
+
     for (const param of params) {
         try {
             await param(apikey);
@@ -39,70 +84,94 @@ export async function createApiKey(
             logger.warn("Skipping invalid param.");
         }
     }
-    // Try to run the create + attach inside a transaction when possible
-    const session = await ApiKey.db.startSession();
+
+    const key = apikey.apiKey;
+    if (!key) {
+        throw new Error("Generated API key is missing");
+    }
+
+    const staffObjectId =
+        staffId instanceof ObjectId
+            ? staffId
+            : (() => {
+                  if (!ObjectId.isValid(staffId)) {
+                      throw new Error(`Invalid staffId: ${staffId}`);
+                  }
+                  return new ObjectId(staffId);
+              })();
+
+    // Try with transaction first, fall back to non-transactional on error
+    let session: ClientSession | null = null;
     try {
+        session = await ApiKey.db.startSession();
         session.startTransaction();
 
-        // create apikey within the session using a model instance to satisfy types
         const createdApiKey = new ApiKey(apikey);
         await createdApiKey.save({
             session,
         });
 
-        // convert staffId to ObjectId if needed
-        let staffObjectId: ObjectId;
-        if (staffId instanceof ObjectId) {
-            staffObjectId = staffId;
-        } else {
-            if (!ObjectId.isValid(staffId)) {
-                throw new Error("Invalid staffId");
-            }
-            staffObjectId = new ObjectId(staffId);
-        }
-
-        const staffDoc: StaffDocument | null = await Staff.findById(
-            staffObjectId,
-        )
-            .session(session)
-            .exec();
-        if (!staffDoc) {
-            throw new Error("No Staff found with the provided staffId");
-        }
-
-        // ensure apiKey array exists and add the key if not present
-        if (!Array.isArray(staffDoc.apiKey)) {
-            staffDoc.apiKey = [] as unknown as string[];
-        }
-
-        const key = apikey.apiKey;
-        if (!key) {
-            throw new Error("Generated API key is missing");
-        }
-
-        if (!staffDoc.apiKey.includes(key)) {
-            staffDoc.apiKey.push(key);
-            await staffDoc.save({
-                session,
-            });
-        }
+        await addApiKeyToStaff(staffObjectId, key, session);
 
         await session.commitTransaction();
-        session.endSession();
         return key;
-    } catch (err) {
-        try {
-            await session.abortTransaction();
-        } catch (_) {
-            // ignore abort errors
+    } catch (transactionErr: unknown) {
+        if (session) {
+            try {
+                await session.abortTransaction();
+            } catch (abortErr) {
+                logger.debug("Failed to abort transaction:", abortErr);
+            }
         }
-        session.endSession();
 
-        throw err;
+        // If transaction failed because MongoDB doesn't support transactions, retry without transaction
+        if (isTransactionUnsupportedError(transactionErr)) {
+            const err = transactionErr as {
+                code?: number;
+                codeName?: string;
+            };
+            logger.debug(
+                "Transactions not supported, retrying without transaction",
+                {
+                    code: err.code,
+                    codeName: err.codeName,
+                },
+            );
+
+            const createdApiKey = new ApiKey(apikey);
+            await createdApiKey.save();
+
+            try {
+                await addApiKeyToStaff(staffObjectId, key);
+                return key;
+            } catch (staffErr) {
+                logger.error(
+                    "Failed to add API key to staff, cleaning up orphaned key",
+                    staffErr,
+                );
+                try {
+                    await ApiKey.deleteOne({
+                        apiKey: key,
+                    }).exec();
+                } catch (cleanupErr) {
+                    logger.error(
+                        "Failed to clean up orphaned API key",
+                        cleanupErr,
+                    );
+                }
+                throw staffErr;
+            }
+        }
+
+        // If it's a different error, rethrow it
+        throw transactionErr;
+    } finally {
+        if (session) {
+            await session.endSession();
+        }
     }
 }
 
-// Recommended to use `WithMongoId` or `findApiKey` for exactly matching API keys
 export async function findApiKey(
     params: ApiKeyParam[],
 ): Promise<ApiKeyDocument | null> {
@@ -122,7 +191,6 @@ export async function findApiKey(
     return doc as ApiKeyDocument;
 }
 
-// Recommended to use `WithMongoId` or `findApiKey` for exactly matching API keys
 export async function deleteApiKey(params: ApiKeyParam[]): Promise<boolean> {
     const query: Partial<ApiKeyDocument> = {};
     for (const param of params) {
@@ -134,6 +202,9 @@ export async function deleteApiKey(params: ApiKeyParam[]): Promise<boolean> {
         }
     }
     if (!query.apiKey || !query._id) {
+        logger.warn(
+            "deleteApiKey called without both apiKey and _id - skipping deletion",
+        );
         return false;
     }
     const filter = query as unknown as FilterQuery<ApiKeyDocument>;
@@ -154,6 +225,9 @@ export async function deleteApiKeyByCreatedAt(
         }
     }
     if (!query.createdAt) {
+        logger.warn(
+            "deleteApiKeyByCreatedAt called without createdAt - skipping deletion",
+        );
         return false;
     }
     await ApiKey.deleteMany({
@@ -180,7 +254,9 @@ export const WithMongoId = (id: string | ObjectId): ApiKeyParam =>
 export function WithApiKey(apiKey: string): ApiKeyParam {
     const regexExpr = /^[a-f0-9]{64}$/;
     if (!regexExpr.test(apiKey)) {
-        throw new Error("Invalid API key");
+        throw new Error(
+            "Invalid API key format - must be 64 hexadecimal characters",
+        );
     }
     return WithField<ApiKeyDocument, "apiKey">("apiKey", apiKey);
 }
@@ -188,7 +264,9 @@ export function WithApiKey(apiKey: string): ApiKeyParam {
 export function WithCreatedAt(createdAt: Date): ApiKeyParam {
     return async (config: Partial<ApiKeyDocument>): Promise<void> => {
         if (config.expiredAt && createdAt >= config.expiredAt) {
-            throw new Error("Invalid creation date");
+            throw new Error(
+                "Invalid creation date - must be before expiration date",
+            );
         }
         return WithField<ApiKeyDocument, "createdAt">(
             "createdAt",
@@ -200,7 +278,9 @@ export function WithCreatedAt(createdAt: Date): ApiKeyParam {
 export function WithExpiredAt(expiredAt: Date): ApiKeyParam {
     return async (config: Partial<ApiKeyDocument>): Promise<void> => {
         if (config.createdAt && expiredAt <= config.createdAt) {
-            throw new Error("Invalid expiration date");
+            throw new Error(
+                "Invalid expiration date - must be after creation date",
+            );
         }
         return WithField<ApiKeyDocument, "expiredAt">(
             "expiredAt",

@@ -1,0 +1,55 @@
+name: build-and-typecheck
+
+on:
+  push:
+    branches: [ main ]
+
+  pull_request:
+    branches: [ main ]
+
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build and Typecheck
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24.x'
+
+      - name: Enable Corepack and prepare pnpm
+        run: |
+          corepack enable
+          corepack prepare pnpm@10.20.0 --activate
+
+      - name: Get pnpm store path
+        id: pnpm_store
+        run: |
+          # Ensure pnpm is available and print the store path. Save to the step output.
+          pnpm --version
+          STORE_PATH=$(pnpm store path)
+          echo "store-path=$STORE_PATH" >> $GITHUB_OUTPUT
+
+      - name: Cache pnpm store
+        uses: actions/cache@v4
+        with:
+          path: |
+            ${{ steps.pnpm_store.outputs.store-path }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies
+        run: pnpm -w install --frozen-lockfile
+
+      - name: Typecheck (tsc)
+        run: pnpm run tsc
+
+      - name: Build
+        run: pnpm run build

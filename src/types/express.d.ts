@@ -1,5 +1,5 @@
-import type { SessionDocument } from "#/modules/session/session.schema";
-import type { TableDocument } from "#/modules/table/table.schema";
+import type { SessionDocument } from "#/modules/session/session.schema.js";
+import type { TableDocument } from "#/modules/table/table.schema.js";
 
 declare global {
     namespace Express {

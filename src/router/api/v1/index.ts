@@ -1,8 +1,8 @@
 import { Router } from "express";
 
-import { dishesRouter } from "./dishes.router";
-import { ordersRouter } from "./orders.router";
-import { sessionsRouter } from "./sessions.router";
+import { dishesRouter } from "#/router/api/v1/dishes.router.js";
+import { ordersRouter } from "#/router/api/v1/orders.router.js";
+import { sessionsRouter } from "#/router/api/v1/sessions.router.js";
 
 const router: Router = Router({
     mergeParams: true,

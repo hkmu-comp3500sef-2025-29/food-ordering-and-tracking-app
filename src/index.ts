@@ -1,17 +1,18 @@
-import type { Express, NextFunction, Request, Response } from "express";
+import type { Express, Request, Response } from "express";
 
 import compression from "compression";
 import cookieParser from "cookie-parser";
 import express from "express";
 import helmet from "helmet";
 
-import { ConfigManager } from "#/configs/config.manager";
-import { httpLogger, logger } from "#/configs/logger";
-import { initDatabase, loadTrustedIps } from "#/configs/root.init";
-import { PATH_PUBLIC, PATH_VIEWS } from "#/constants";
-import { requestContext, responseTimer } from "#/middlewares";
-import { router } from "#/router";
-import { isHttpError } from "#/utils/error";
+import { ConfigManager } from "#/configs/config.manager.js";
+import { helmetConfig } from "#/configs/helmet.js";
+import { httpLogger, logger } from "#/configs/logger.js";
+import { initDatabase, loadTrustedIps } from "#/configs/root.init.js";
+import { PATH_PUBLIC, PATH_VIEWS } from "#/constants/index.js";
+import { requestContext, responseTimer } from "#/middlewares/index.js";
+import { router } from "#/router/index.js";
+import { isHttpError } from "#/utils/error/index.js";
 
 const Config = ConfigManager.getInstance();
 
@@ -20,7 +21,7 @@ const app: Express = express();
 // Security & performance middleware
 app.use(requestContext);
 app.use(responseTimer);
-app.use(helmet());
+app.use(helmet(helmetConfig));
 app.use(compression());
 app.use(httpLogger);
 
@@ -42,12 +43,13 @@ app.set("view engine", "ejs");
 
 app.set("views", PATH_VIEWS);
 
-app.use("/", router);
-
+// Serve static files (all public assets are exposed under `/static`)
 app.use("/static", express.static(PATH_PUBLIC));
 
+app.use("/", router);
+
 // Basic error handler, returns 500 if unhandled
-app.use((err: Error, req: Request, res: Response, _next: NextFunction) => {
+app.use((err: Error, req: Request, res: Response): void => {
     if (isHttpError(err)) {
         const payload = {
             success: false,
@@ -60,10 +62,11 @@ app.use((err: Error, req: Request, res: Response, _next: NextFunction) => {
             payload,
             err.errorDetails ? err.errorDetails : "",
         );
-        return res.status(err.statusCode).json(payload);
+        res.status(err.statusCode).json(payload);
+        return;
     }
     logger.error("Unhandled error:", err);
-    return res.status(500).json({
+    res.status(500).json({
         success: false,
         error: "Internal Server Error",
         requestId: req.requestId,
@@ -91,12 +94,9 @@ async function start(): Promise<void> {
     });
 }
 
-// If run directly, start the server
-if (require.main === module) {
-    start().catch((err) => {
-        logger.error("Failed to start server:", err);
-        process.exit(1);
-    });
-}
+start().catch((err) => {
+    logger.error("Failed to start server:", err);
+    process.exit(1);
+});
 
 export default app;

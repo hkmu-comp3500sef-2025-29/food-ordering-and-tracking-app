@@ -7,7 +7,7 @@ import {
     authLimiter,
     requireStaffRole,
     sessionContext,
-} from "#/middlewares";
+} from "#/middlewares/index.js";
 import {
     closeSession,
     createSession,
@@ -16,12 +16,12 @@ import {
     WithTableId as WithSessionTableId,
     WithStatus,
     WithUuid,
-} from "#/modules/session/session.repo";
+} from "#/modules/session/session.repo.js";
 import {
     findTable,
     WithTableId as WithTableByNumber,
-} from "#/modules/table/table.repo";
-import { httpErrors as errors } from "#/utils/error";
+} from "#/modules/table/table.repo.js";
+import { httpErrors as errors } from "#/utils/error/index.js";
 
 const router: Router = Router({
     mergeParams: true,
@@ -137,7 +137,7 @@ router.post(
             if (!tableDoc) {
                 throw errors.notFound("Table not found");
             }
-            params.push(WithSessionTableId(tableDoc._id as any));
+            params.push(WithSessionTableId(tableDoc._id as string));
         }
 
         const session = await createSession(params);

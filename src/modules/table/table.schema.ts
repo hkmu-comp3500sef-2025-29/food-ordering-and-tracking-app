@@ -27,49 +27,63 @@ const tableSchema = new Schema({
 });
 
 // pre-save hook to assign an auto-incrementing tableId when not provided
-tableSchema.pre("save", async function (next) {
-    const doc = this as any;
-    try {
-        if (doc.isNew && (doc.tableId === undefined || doc.tableId === null)) {
-            const agg = await mongoose.connection
-                .collection(TABLE_COLLECTION_NAME)
-                .aggregate([
-                    {
-                        $group: {
-                            _id: null,
-                            max: {
-                                $max: "$tableId",
+tableSchema.pre(
+    "save",
+    async function (
+        this: mongoose.Document & {
+            tableId?: number;
+            isNew?: boolean;
+        },
+        next,
+    ) {
+        try {
+            if (
+                this.isNew &&
+                (this.tableId === undefined || this.tableId === null)
+            ) {
+                const agg = await mongoose.connection
+                    .collection(TABLE_COLLECTION_NAME)
+                    .aggregate([
+                        {
+                            $group: {
+                                _id: null,
+                                max: {
+                                    $max: "$tableId",
+                                },
                             },
                         },
+                    ])
+                    .toArray();
+                const currentMax =
+                    agg?.[0] && typeof agg[0].max === "number" ? agg[0].max : 0;
+                const counter = await CounterModel.findOneAndUpdate(
+                    {
+                        _id: "tableId",
                     },
-                ])
-                .toArray();
-            const currentMax =
-                agg?.[0] && typeof agg[0].max === "number" ? agg[0].max : 0;
-            const counter = await CounterModel.findOneAndUpdate(
-                {
-                    _id: "tableId",
-                },
-                {
-                    $setOnInsert: {
-                        seq: currentMax,
+                    {
+                        $setOnInsert: {
+                            seq: currentMax,
+                        },
+                        $inc: {
+                            seq: 1,
+                        },
                     },
-                    $inc: {
-                        seq: 1,
+                    {
+                        new: true,
+                        upsert: true,
                     },
-                },
-                {
-                    new: true,
-                    upsert: true,
-                },
-            ).exec();
-            doc.tableId = counter.seq;
+                ).exec();
+                if (!counter) {
+                    throw new Error("Failed to generate tableId counter");
+                }
+                this.tableId = counter.seq;
+            }
+            next();
+        } catch (err) {
+            next(err as Error);
         }
-        next();
-    } catch (err) {
-        next(err as any);
-    }
-});
+    },
+);
 
 const TableModel = model(TABLE_COLLECTION_NAME, tableSchema);
 type TableDocument = mongoose.InferSchemaType<typeof tableSchema> &

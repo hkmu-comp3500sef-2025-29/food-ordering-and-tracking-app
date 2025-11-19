@@ -2,8 +2,8 @@ import { exit } from "node:process";
 
 import mongoose from "mongoose";
 
-import { logger } from "#/configs/logger";
-import { ConfigManager as cm } from "./config.manager";
+import { ConfigManager as cm } from "#/configs/config.manager.js";
+import { logger } from "#/configs/logger.js";
 
 const Config = cm.getInstance();
 

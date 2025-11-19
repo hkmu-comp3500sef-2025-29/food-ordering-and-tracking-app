@@ -1,7 +1,11 @@
 import { Router } from "express";
 import { z } from "zod";
 
-import { apiKeyAuth, asyncHandler, requireStaffRole } from "#/middlewares";
+import {
+    apiKeyAuth,
+    asyncHandler,
+    requireStaffRole,
+} from "#/middlewares/index.js";
 import {
     createDish,
     findDish,
@@ -12,8 +16,8 @@ import {
     WithMongoId,
     WithName,
     WithPrice,
-} from "#/modules/dish/dish.repo";
-import { httpErrors as errors } from "#/utils/error";
+} from "#/modules/dish/dish.repo.js";
+import { httpErrors as errors } from "#/utils/error/index.js";
 
 const router: Router = Router({
     mergeParams: true,

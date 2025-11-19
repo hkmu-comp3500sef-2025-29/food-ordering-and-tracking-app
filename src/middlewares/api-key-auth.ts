@@ -2,12 +2,13 @@ import type { NextFunction, Request, Response } from "express";
 
 import z from "zod";
 
-import { findApiKey, WithApiKey } from "#/modules/apikey/apikey.repo";
+import { asyncHandler } from "#/middlewares/async-handler.js";
+import { findApiKey, WithApiKey } from "#/modules/apikey/apikey.repo.js";
 import {
     findStaff,
     WithApiKey as WithStaffApiKey,
-} from "#/modules/staff/staff.repo";
-import { httpErrors as errors } from "#/utils/error";
+} from "#/modules/staff/staff.repo.js";
+import { httpErrors as errors } from "#/utils/error/index.js";
 import {
     type AuthCookiePayload,
     createAuthCookie,
@@ -16,8 +17,7 @@ import {
     parseAuthCookie,
     refreshAuthCookie,
     shouldRefreshCookie,
-} from "#/utils/secure-cookie";
-import { asyncHandler } from "./async-handler";
+} from "#/utils/secure-cookie.js";
 
 export interface ApiKeyAuthOptions {
     optional?: boolean;
@@ -44,7 +44,7 @@ export function apiKeyAuth(
         const apiKey = extractApiKey(req);
         if (!apiKey) {
             if (optional) {
-                req.role = undefined;
+                // Optional auth failed - don't set role at all
                 return;
             }
             throw errors.unauthorized("API key required");
@@ -143,7 +143,7 @@ async function tryAuthWithCookie(
         }
 
         return true;
-    } catch (_error) {
+    } catch {
         // Any error in cookie processing is silently ignored
         return false;
     }
