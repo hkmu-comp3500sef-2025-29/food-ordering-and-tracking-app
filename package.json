@@ -6,6 +6,7 @@
         "lint": "biome lint .",
         "lint:fix": "biome lint --write .",
         "fmt": "biome format --write .",
+        "check": "biome check --write .",
         "client": "tsc -p tsconfig.client.dev.json",
         "dev": "tsx watch --include './src/*' --exclude './src/scripts/*' ./src/index.ts",
         "build": "rimraf ./dist && cpy \"public/**/*\" dist/public && tsc -p tsconfig.client.prd.json && tsc && tsc-alias && cpy \"src/views/**/*\" dist/views",

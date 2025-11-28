@@ -1,5 +1,7 @@
 import type { NextFunction, Request, Response } from "express";
 
+import type { DishDocument } from "#/modules/dish/dish.schema.js";
+
 import { Router } from "express";
 
 import {
@@ -8,6 +10,7 @@ import {
     requireStaffRole,
     sessionContext,
 } from "#/middlewares/index.js";
+import { findDishes } from "#/modules/dish/dish.repo.js";
 import {
     findSession,
     findSessions,
@@ -36,9 +39,23 @@ router.get("/", (_req: Request, res: Response) => {
     res.render("home");
 });
 
-router.get("/menu", ...navStack, (_req: Request, res: Response) => {
+router.get("/menu", ...navStack, async (_req: Request, res: Response) => {
     res.locals.page = "menu";
-    res.render("menu");
+
+    const items: DishDocument[] = await findDishes([]);
+
+    // test data
+    items.push({
+        name: "Test Item",
+        category: "main course",
+        image: "",
+        description: "Test description",
+        price: 1000,
+    } as DishDocument);
+
+    res.render("menu", {
+        items,
+    });
 });
 
 router.get("/cart", ...navStack, (_req: Request, res: Response) => {
