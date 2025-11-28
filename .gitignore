@@ -8,6 +8,9 @@ dist/
 # Dependency directories
 node_modules/
 
+# Client build on dev
+/public/scripts/**
+
 # Env
 .env.development
 .env.test

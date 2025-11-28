@@ -3,6 +3,11 @@
     "extends": [
         "@apst/biome"
     ],
+    "files": {
+        "includes": [
+            "!public/scripts/**/*"
+        ]
+    },
     "linter": {
         "enabled": true,
         "rules": {
