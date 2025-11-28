@@ -44,15 +44,6 @@ router.get("/menu", ...navStack, async (_req: Request, res: Response) => {
 
     const items: DishDocument[] = await findDishes([]);
 
-    // test data
-    items.push({
-        name: "Test Item",
-        category: "main course",
-        image: "",
-        description: "Test description",
-        price: 1000,
-    } as DishDocument);
-
     res.render("menu", {
         items,
     });
