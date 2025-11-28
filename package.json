@@ -3,11 +3,12 @@
     "type": "module",
     "scripts": {
         "tsc": "tsc --noEmit",
-        "lint": "biome lint src",
-        "lint:fix": "biome check --write .",
-        "fmt": "biome check --write .",
-        "dev": "tsx ./src/index.ts",
-        "build": "pnpm lint && rimraf ./dist && tsc && tsc-alias && cpy \"src/views/**/*\" dist/views && cpy \"public/**/*\" dist/public",
+        "lint": "biome lint .",
+        "lint:fix": "biome lint --write .",
+        "fmt": "biome format --write .",
+        "client": "tsc -p tsconfig.client.dev.json",
+        "dev": "tsx watch --include './src/*' --exclude './src/scripts/*' ./src/index.ts",
+        "build": "rimraf ./dist && cpy \"public/**/*\" dist/public && tsc -p tsconfig.client.prd.json && tsc && tsc-alias && cpy \"src/views/**/*\" dist/views",
         "start": "cross-env NODE_ENV=production node ./dist/index.js"
     },
     "dependencies": {
