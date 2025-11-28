@@ -1,12 +1,12 @@
 {
     "extends": "./tsconfig.json",
     "compilerOptions": {
-        "module": "ESNext",
-        "moduleResolution": "Node",
-        "outDir": "./public/scripts",
-        "rootDir": "./src/scripts"
+        "module": "es2015",
+        "moduleResolution": "node",
+        "rootDir": "./src/scripts",
+        "outDir": "./public/scripts"
     },
     "include": [
-        "./src/scripts/**/*.ts"
+        "./src/scripts/**/*"
     ]
 }
