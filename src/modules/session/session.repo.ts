@@ -38,89 +38,72 @@ export async function createSession(
         }
     }
 
-    const session = await SessionModel.db.startSession();
-    try {
-        session.startTransaction();
-
-        let tableId: ObjectId | undefined;
-        if (config.table) {
-            if (config.table instanceof ObjectId) tableId = config.table;
-            else {
-                if (!ObjectId.isValid(String(config.table))) {
-                    throw new Error("Invalid table id");
-                }
-                tableId = new ObjectId(String(config.table));
+    let tableId: ObjectId | undefined;
+    if (config.table) {
+        if (config.table instanceof ObjectId) tableId = config.table;
+        else {
+            if (!ObjectId.isValid(String(config.table))) {
+                throw new Error("Invalid table id");
             }
-
-            const active = await SessionModel.findOne({
-                table: tableId,
-                status: "active",
-            })
-                .session(session)
-                .exec();
-            if (active) {
-                throw new Error(
-                    "Requested table is already active in another session",
-                );
-            }
-
-            const updated = await Table.findOneAndUpdate(
-                {
-                    _id: tableId,
-                    available: true,
-                },
-                {
-                    $set: {
-                        available: false,
-                    },
-                },
-                {
-                    session,
-                    new: true,
-                },
-            ).exec();
-            if (!updated) {
-                throw new Error("Requested table is not available");
-            }
-        } else {
-            const picked = await Table.findOneAndUpdate(
-                {
-                    available: true,
-                },
-                {
-                    $set: {
-                        available: false,
-                    },
-                },
-                {
-                    session,
-                    new: true,
-                },
-            ).exec();
-            if (!picked) {
-                throw new Error("No available tables");
-            }
-            tableId = picked._id as ObjectId;
-            config.table = tableId;
+            tableId = new ObjectId(String(config.table));
         }
 
-        const created = new SessionModel(config);
-        await created.save({
-            session,
-        });
-
-        await session.commitTransaction();
-        await session.endSession();
-        return created as SessionDocument;
-    } catch (err) {
-        try {
-            await session.abortTransaction();
-        } catch {
-            // ignore
+        // Check if table already has an active session
+        const active = await SessionModel.findOne({
+            table: tableId,
+            status: "active",
+        }).exec();
+        if (active) {
+            throw new Error(
+                "Requested table is already active in another session",
+            );
         }
-        await session.endSession();
-        throw err;
+
+        // Update table availability
+        const updated = await Table.findOneAndUpdate(
+            {
+                _id: tableId,
+                available: true,
+            },
+            {
+                $set: {
+                    available: false,
+                },
+            },
+            {
+                new: true,
+            },
+        ).exec();
+        if (!updated) {
+            throw new Error("Requested table is not available");
+        }
+    } else {
+        // Pick any available table
+        const picked = await Table.findOneAndUpdate(
+            {
+                available: true,
+            },
+            {
+                $set: {
+                    available: false,
+                },
+            },
+            {
+                new: true,
+            },
+        ).exec();
+        if (!picked) {
+            throw new Error("No available tables");
+        }
+        tableId = picked._id as ObjectId;
+        config.table = tableId;
     }
+
+    // Create the session
+    const created = new SessionModel(config);
+    await created.save();
+
+    return created as SessionDocument;
 }
 
 // Closes a session with exactly matching params
@@ -148,6 +131,15 @@ export async function closeSession(
         },
     ).exec();
     if (!doc) return null;
+    
+    // Release the table when closing the session
+    if (doc.table) {
+        await Table.findByIdAndUpdate(
+            doc.table,
+            { $set: { available: true } }
+        ).exec();
+    }
+    
     return doc as SessionDocument;
 }
 

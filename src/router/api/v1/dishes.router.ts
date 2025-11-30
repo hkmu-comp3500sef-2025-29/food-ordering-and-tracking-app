@@ -41,7 +41,7 @@ const createDishSchema = z.object({
     category: z.enum(categories).optional().default("undefined"),
     description: z.string().optional(),
     price: z.number().positive(),
-    image: z.string().url().optional(),
+    image: z.string().optional(), // base64 encoded image string
 });
 
 type NewDish = z.infer<typeof createDishSchema>;
