@@ -54,7 +54,10 @@ export function sessionContext(
             let session;
             try {
                 session = await safeDbOperation(
-                    async () => await findSession([WithUuid(token)]),
+                    async () =>
+                        await findSession([
+                            WithUuid(token),
+                        ]),
                     "Failed to validate session",
                 );
             } catch (error: any) {
@@ -87,7 +90,9 @@ export function sessionContext(
                 try {
                     table = await safeDbOperation(
                         async () =>
-                            await findTable([WithTableMongoId(session.table)]),
+                            await findTable([
+                                WithTableMongoId(session.table),
+                            ]),
                         "Failed to fetch table information",
                     );
                 } catch {

@@ -131,15 +131,16 @@ export async function closeSession(
         },
     ).exec();
     if (!doc) return null;
-    
+
     // Release the table when closing the session
     if (doc.table) {
-        await Table.findByIdAndUpdate(
-            doc.table,
-            { $set: { available: true } }
-        ).exec();
+        await Table.findByIdAndUpdate(doc.table, {
+            $set: {
+                available: true,
+            },
+        }).exec();
     }
-    
+
     return doc as SessionDocument;
 }
 

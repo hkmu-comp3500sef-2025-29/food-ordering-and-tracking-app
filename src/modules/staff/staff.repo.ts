@@ -117,14 +117,22 @@ export async function findStaff(
     }
 
     // Handle apiKey specially - if it's an array, we need to match if the document's apiKey array contains it
-    const filter: FilterQuery<StaffDocument> = { ...query } as FilterQuery<StaffDocument>;
-    if (query.apiKey && Array.isArray(query.apiKey) && query.apiKey.length > 0) {
+    const filter: FilterQuery<StaffDocument> = {
+        ...query,
+    } as FilterQuery<StaffDocument>;
+    if (
+        query.apiKey &&
+        Array.isArray(query.apiKey) &&
+        query.apiKey.length > 0
+    ) {
         // If single key, match documents where apiKey array contains it
         if (query.apiKey.length === 1) {
             filter.apiKey = query.apiKey[0];
         } else {
             // If multiple keys, require all via $all
-            filter.apiKey = { $all: query.apiKey } as any;
+            filter.apiKey = {
+                $all: query.apiKey,
+            } as any;
         }
     }
 

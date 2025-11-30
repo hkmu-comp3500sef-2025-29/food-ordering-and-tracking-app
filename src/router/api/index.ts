@@ -26,7 +26,12 @@ router.use((req: Request, res: Response, next: NextFunction) => {
     const version = req.params.version ?? "";
     const handler = versionRouters.get(version);
     if (!handler) {
-        const payload: { success: false; error: string; message: string; requestId?: string } = {
+        const payload: {
+            success: false;
+            error: string;
+            message: string;
+            requestId?: string;
+        } = {
             success: false,
             error: "UNSUPPORTED_API_VERSION",
             message: `API version '${version}' is not supported. Available version: ${configVersion}`,
@@ -40,7 +45,12 @@ router.use((req: Request, res: Response, next: NextFunction) => {
 });
 
 router.use((req: Request, res: Response) => {
-    const payload: { success: false; error: string; message: string; requestId?: string } = {
+    const payload: {
+        success: false;
+        error: string;
+        message: string;
+        requestId?: string;
+    } = {
         success: false,
         error: "ENDPOINT_NOT_FOUND",
         message: `API endpoint '${req.path}' not found`,
