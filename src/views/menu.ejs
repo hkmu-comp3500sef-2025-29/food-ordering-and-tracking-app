@@ -4,19 +4,111 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Food Ordering And Tracking App</title>
+    <style>
+        body {
+            background-color: #eee;
+        }
+
+        .menu-header {
+            display: flex;
+        }
+
+        .menu-header-title {
+            flex: 1;
+            text-align: left;
+            margin-left: 20px;
+        }
+
+        .menu-header-call-container {
+            flex: 1;
+            position: relative;
+        }
+
+        .menu-header-call {
+            position: absolute;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            display: block;
+            with: 100%;
+            height: auto;
+            background-color: #ff8200;
+            color: #fff;
+            border-radius: 30px;
+            border: 0;
+            font-size: 16px;
+            padding: 8px 24px;
+        }
+
+        .menu {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .menu-item-card {
+            position: relative;
+            flex-basis: calc(50% - 10px);
+            box-sizing: border-box;
+            border-radius: 12px;
+            background-color: #fff;
+        }
+
+        .menu-item-link {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .menu-item-image {
+            width: calc(100% - 16px);
+            height: auto;
+            aspect-ratio: 1;
+            border-radius: 8px;
+            margin: 8px;
+        }
+
+        .menu-item-info {
+            margin: 4px 16px;
+        }
+
+        .menu-item-info-name {
+            font-weight: bold;
+        }
+
+        .menu-item-info-price {
+            font-weight: bold;
+        }
+
+        .menu-item-add-to-cart {
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+            background-color: #ff8200;
+            color: #fff;
+            border: none;
+            padding: 8px 12px;
+            cursor: pointer;
+            border-radius: 100%;
+        }
+
+        .blank {
+            height: 100px;
+        }
+    </style>
 </head>
 <body>
     <%- include("components/nav/top"); -%>
     <%- include("components/nav/bottom"); -%>
 
     <main>
-        <section>
-            <h2>Menu Items</h2>
-            <p>Browse dishes and tap to view product details.</p>
-        </section>
+        <div class="menu-header">
+            <h1 class="menu-header-title">Menu</h1>
+            <div class="menu-header-call-container">
+                <button type="button" class="menu-header-call">Call Staff</button>
+            </div>
+        </div>
 
-        <section class="menu-grid">
+        <div class="menu">
             <% if (items && items.length > 0) { %>
                 <% items.forEach(item => { %>
                     <div class="menu-item-card">
@@ -28,27 +120,21 @@
                             <% } %>
 
                             <div class="menu-item-info">
-                                <h3><%= item.name %></h3>
-                                <% if (item.description) { %>
-                                    <p><%= item.description %></p>
-                                <% } %>
-                                <p class="price">$<%= Number(item.price).toFixed(2) %></p>
+                                <div class="menu-item-info-name"><%= item.name %></div>
+                                <p class="menu-item-info-price">$<%= Number(item.price).toFixed(2) %></p>
                             </div>
+
+                            <button type="button" class="menu-item-add-to-cart" data-id="<%= item.id %>">
+                                +
+                            </button>
                         </a>
-                        <button type="button" class="add-to-cart-btn" data-id="<%= item.id %>">
-                            Add to Cart
-                        </button>
                     </div>
                 <% }) %>
             <% } else { %>
                 <p>No items available at the moment.</p>
             <% } %>
-        </section>
-        <section>
-            <button type="button">Call Staff</button>
-        </section>
+        </div>
+        <div class="blank"></div>
     </main>
 </body>
-
-
 </html>
