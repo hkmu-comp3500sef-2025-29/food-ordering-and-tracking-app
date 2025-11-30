@@ -104,7 +104,9 @@
 #outer-container #cart-container .item-container .column-1 .item-icon {
     width: 150px;
     height: auto;
+    aspect-ratio: 1;
     object-fit: cover;
+    object-position: center;
 }
 
 #outer-container
@@ -302,11 +304,15 @@
 }
 
 #bottom-bar #back-to-menu {
+    display: block;
     width: 160px;
     height: 45px;
+    padding-top: 8px;
     font-size: large;
     font-weight: bold;
     color: var(--color--orange);
+    text-align: center;
+    text-decoration: none;
     cursor: pointer;
     background-color: var(--color-white);
     border: 3px solid var(--color--orange);

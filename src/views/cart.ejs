@@ -15,11 +15,24 @@
     <main>
         <div id="outer-container">
             <div id="cart-container">
-                <!-- Items added in script -->
+                <h1>Order Info</h1>
+
+                <div class="dotted-box"></div>
+
+                <span class="label">Item</span>
+
+                <div class="dotted-box"></div>
+
+                <div id="cart-items-list"></div>
+
+                <div id="price-container">
+                    <span id="total-amount-label">Total Amount:</span>
+                    <span id="total-price">$0.00</span>
+                </div>
             </div>
         </div>
         <div id="bottom-bar">
-            <button type="button" id="back-to-menu">Keep Ordering</button>
+            <a id="back-to-menu" href="/menu">Keep Ordering</a>
             <button type="button" id="place-order">Place Order</button>
         </div>
     </main>

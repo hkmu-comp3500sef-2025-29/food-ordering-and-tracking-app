@@ -258,7 +258,12 @@
             </div>
             <div class="customize-item-panel-blank"></div>
             <div class="customize-item-panel">
-                <button type="button" class="customize-item-panel-button-a2c">
+                <button 
+                    type="button" 
+                    id="customize-item-button-a2c"
+                    class="customize-item-panel-button-a2c"
+                    value="<%= item.id %>"
+                >
                     <div class="customize-item-panel-button-a2c-title">Add to cart</div>
                     <div class="customize-item-panel-button-a2c-price">$<%= item.price %></div>
                 </button>
@@ -266,6 +271,8 @@
         </div>
 
     </main>
+
+    <script type="module" src="/static/scripts/customize/cart.js"></script>
 </body>
 
 </html>
