@@ -36,16 +36,16 @@ export function apiKeyAuth(
     options: ApiKeyAuthOptions = {},
 ): (req: Request, res: Response, next: NextFunction) => void {
     const { optional = false } = options;
-    return asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    return asyncHandler(async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         const cookieAuthSucceeded = await tryAuthWithCookie(req, res);
         if (cookieAuthSucceeded) {
-            return;
+            return next();
         }
         const apiKey = extractApiKey(req);
         if (!apiKey) {
             if (optional) {
                 // Optional auth failed - don't set role at all
-                return;
+                return next();
             }
             throw errors.unauthorized("API key required");
         }
@@ -95,6 +95,8 @@ export function apiKeyAuth(
             maxAge: cookieConfig.maxAge,
             path: cookieConfig.path,
         });
+        
+        next();
     });
 }
 
