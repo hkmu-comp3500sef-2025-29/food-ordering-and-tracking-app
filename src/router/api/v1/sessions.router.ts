@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { z } from "zod";
 
+import { safeDbOperation } from "#/error/index.js";
 import {
     apiKeyAuth,
     asyncHandler,
@@ -49,10 +50,14 @@ const listQuerySchema = z.object({
 
 router.get(
     "/current",
-    sessionContext(),
+    sessionContext({ optional: true }),
     asyncHandler(async (req, res) => {
-        if (!req.sessionContext) {
-            throw errors.unauthorized("Session not found");
+        if (!req.sessionContext || !req.sessionContext.session) {
+            throw errors.unauthorized(
+                "Valid session identifier required to access current session",
+                401,
+                "SESSION_NOT_FOUND",
+            );
         }
         res.json({
             success: true,
@@ -70,11 +75,23 @@ router.get(
     ]),
     asyncHandler(async (req, res) => {
         const parsed = listQuerySchema.safeParse(req.query);
-        const params = [];
-        if (parsed.success && parsed.data.status) {
-            params.push(WithStatus(parsed.data.status));
+        const params: any[] = [];
+        if (parsed.success) {
+            if (parsed.data.status) {
+                params.push(WithStatus(parsed.data.status));
+            }
+        } else {
+            throw errors.badRequest(
+                "Invalid query parameters",
+                400,
+                "INVALID_QUERY_PARAMS",
+                parsed.error.issues.map((issue) => ({
+                    path: issue.path.join("."),
+                    message: issue.message,
+                })),
+            );
         }
-        const sessions = await findSessions(params);
+        const sessions = await safeDbOperation(() => findSessions(params));
         res.json({
             success: true,
             data: sessions,
@@ -92,13 +109,21 @@ router.get(
     asyncHandler(async (req, res) => {
         const { uuid } = req.params;
         if (!uuid) {
-            throw errors.badRequest("uuid is required");
+            throw errors.badRequest(
+                "Session UUID is required in the URL path",
+                400,
+                "MISSING_SESSION_UUID",
+            );
         }
-        const session = await findSession([
+        const session = await safeDbOperation(() => findSession([
             WithUuid(uuid),
-        ]);
+        ]));
         if (!session) {
-            throw errors.notFound("Session not found");
+            throw errors.notFound(
+                `Session with UUID '${uuid}' not found`,
+                404,
+                "SESSION_NOT_FOUND",
+            );
         }
         res.json({
             success: true,
@@ -117,7 +142,7 @@ router.post(
     ]),
     asyncHandler(async (req, res) => {
         const payload = createSessionSchema.parse(req.body ?? {});
-        const params = [];
+        const params: any[] = [];
 
         if (payload.tableId) {
             params.push(WithSessionTableId(payload.tableId));
@@ -128,19 +153,25 @@ router.post(
                     : payload.tableNumber;
             if (!Number.isInteger(tableNumber) || tableNumber <= 0) {
                 throw errors.badRequest(
-                    "tableNumber must be a positive integer",
+                    "Table number must be a positive integer",
+                    400,
+                    "INVALID_TABLE_NUMBER",
                 );
             }
-            const tableDoc = await findTable([
+            const tableDoc = await safeDbOperation(() => findTable([
                 WithTableByNumber(tableNumber),
-            ]);
+            ]));
             if (!tableDoc) {
-                throw errors.notFound("Table not found");
+                throw errors.notFound(
+                    `Table number ${tableNumber} not found`,
+                    404,
+                    "TABLE_NOT_FOUND",
+                );
             }
             params.push(WithSessionTableId(tableDoc._id as string));
         }
 
-        const session = await createSession(params);
+        const session = await safeDbOperation(() => createSession(params));
         res.status(201).json({
             success: true,
             data: session,
@@ -158,13 +189,21 @@ router.patch(
     asyncHandler(async (req, res) => {
         const { uuid } = req.params;
         if (!uuid) {
-            throw errors.badRequest("uuid is required");
+            throw errors.badRequest(
+                "Session UUID is required in the URL path",
+                400,
+                "MISSING_SESSION_UUID",
+            );
         }
         const session = await closeSession([
             WithUuid(uuid),
         ]);
         if (!session) {
-            throw errors.notFound("Session not found");
+            throw errors.notFound(
+                `Session with UUID '${uuid}' not found or already closed`,
+                404,
+                "SESSION_NOT_FOUND",
+            );
         }
         res.json({
             success: true,

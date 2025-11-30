@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { z } from "zod";
 
+import { safeDbOperation } from "#/error/index.js";
 import {
     apiKeyAuth,
     asyncHandler,
@@ -70,12 +71,29 @@ const updateDishStatusSchema = z.object({
 router.post(
     "/",
     orderCreationLimiter,
-    sessionContext(),
+    sessionContext({ optional: true }),
     asyncHandler(async (req, res) => {
-        if (!req.sessionContext) {
-            throw errors.unauthorized("Session required to place orders");
-        }
+        // Validate request body first to give better error messages
         const payload = createOrderSchema.parse(req.body);
+        
+        // Then validate session
+        if (req.sessionContext === null) {
+            // Session middleware ran but no session token was provided
+            throw errors.unauthorized(
+                "Session identifier required. Provide via x-session-id header, session cookie, or ?session query parameter",
+                401,
+                "SESSION_ID_REQUIRED",
+            );
+        }
+        if (!req.sessionContext || !req.sessionContext.session) {
+            // Session token was provided but invalid/not found
+            throw errors.unauthorized(
+                "Valid session required to place orders",
+                401,
+                "SESSION_REQUIRED",
+            );
+        }
+        
         const params = [
             WithSessionId(req.sessionContext.session._id as string),
             WithDishItems(
@@ -86,7 +104,7 @@ router.post(
                 })),
             ),
         ];
-        const order = await createOrder(params);
+        const order = await safeDbOperation(() => createOrder(params));
         res.status(201).json({
             success: true,
             data: order,
@@ -104,7 +122,7 @@ router.get(
     ]),
     asyncHandler(async (req, res) => {
         const parsed = listOrdersSchema.safeParse(req.query);
-        const params = [];
+        const params: any[] = [];
         if (parsed.success) {
             const { session, status, sort } = parsed.data;
             if (session) params.push(WithSessionId(session));
@@ -117,8 +135,18 @@ router.get(
                 params.push(WithDishStatuses(statuses));
             }
             if (sort) params.push(WithSort(sort));
+        } else {
+            throw errors.badRequest(
+                "Invalid query parameters",
+                400,
+                "INVALID_QUERY_PARAMS",
+                parsed.error.issues.map((issue) => ({
+                    path: issue.path.join("."),
+                    message: issue.message,
+                })),
+            );
         }
-        const orders = await findOrders(params);
+        const orders = await safeDbOperation(() => findOrders(params));
         res.json({
             success: true,
             data: orders,
@@ -139,13 +167,21 @@ router.get(
     asyncHandler(async (req, res) => {
         const { orderId } = req.params;
         if (!orderId) {
-            throw errors.badRequest("orderId is required");
+            throw errors.badRequest(
+                "Order ID is required in the URL path",
+                400,
+                "MISSING_ORDER_ID",
+            );
         }
-        const order = await findOrder([
+        const order = await safeDbOperation(() => findOrder([
             WithMongoId(orderId),
-        ]);
+        ]));
         if (!order) {
-            throw errors.notFound("Order not found");
+            throw errors.notFound(
+                `Order with ID '${orderId}' not found`,
+                404,
+                "ORDER_NOT_FOUND",
+            );
         }
         res.json({
             success: true,
@@ -165,13 +201,21 @@ router.patch(
     asyncHandler(async (req, res) => {
         const { orderId, dishId } = req.params;
         if (!orderId) {
-            throw errors.badRequest("orderId is required");
+            throw errors.badRequest(
+                "Order ID is required in the URL path",
+                400,
+                "MISSING_ORDER_ID",
+            );
         }
         if (!dishId) {
-            throw errors.badRequest("dishId is required");
+            throw errors.badRequest(
+                "Dish ID is required in the URL path",
+                400,
+                "MISSING_DISH_ID",
+            );
         }
         const payload = updateDishStatusSchema.parse(req.body);
-        const updated = await updateOrderDish(
+        const updated = await safeDbOperation(() => updateOrderDish(
             [
                 WithMongoId(orderId),
             ],
@@ -181,9 +225,13 @@ router.patch(
             {
                 status: payload.status,
             },
-        );
+        ));
         if (!updated) {
-            throw errors.notFound("Order not found");
+            throw errors.notFound(
+                `Order with ID '${orderId}' or dish with ID '${dishId}' not found`,
+                404,
+                "ORDER_OR_DISH_NOT_FOUND",
+            );
         }
         res.json({
             success: true,

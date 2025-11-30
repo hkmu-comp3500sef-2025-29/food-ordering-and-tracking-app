@@ -832,60 +832,458 @@ These are HTML rendering routes for the web interface:
 
 ## Error Responses
 
+### Error Handling Architecture
+
+The API implements a **layered error handling architecture** for robust and consistent error management:
+
+**Layers**:
+1. **Global Error Handler** (`src/error/error.handler.ts`) - Centralized error processing
+   - Handles HTTP errors, Zod validation errors, MongoDB errors, JSON parsing errors
+   - Provides consistent error response format across all endpoints
+   - Never exposes sensitive information (stack traces, database details) to clients
+
+2. **Database Operation Wrapper** (`src/error/db.error.wrapper.ts`) - `safeDbOperation()`
+   - Wraps all database queries to catch MongoDB-specific errors
+   - Converts MongoDB CastError (invalid ObjectId) to `INVALID_ID_FORMAT` (400)
+   - Converts MongoDB ValidationError to `VALIDATION_ERROR` (400)
+   - Prevents database errors from reaching clients as 500 errors
+
+3. **Middleware Error Handling** - Authentication & authorization errors
+   - API key validation with format checking
+   - Session validation with UUID format verification
+   - Role-based access control errors
+
+**Benefits**:
+- **Consistent**: All errors follow the same JSON structure
+- **Secure**: No sensitive information leaked to clients
+- **Debuggable**: Every error includes a unique `requestId` for server-side log correlation
+- **User-friendly**: Clear, actionable error messages with field-level validation details
+
 ### Standard Error Format
+
+All error responses follow a consistent JSON structure to make error handling predictable and easy to implement:
+
 ```json
 {
   "success": false,
-  "error": "Error message description"
+  "error": "ERROR_CODE",
+  "message": "Human-readable error description",
+  "requestId": "unique-request-identifier",
+  "details": {}
 }
 ```
 
-### Common HTTP Status Codes
+**Fields**:
+- `success`: Always `false` for errors
+- `error`: Machine-readable error code (uppercase with underscores)
+- `message`: Human-readable error message with context
+- `requestId`: Unique identifier for the request (useful for debugging and support)
+- `details`: (Optional) Additional error information, such as validation errors
+
+---
+
+### HTTP Status Codes
+
 | Status Code | Description |
 |-------------|-------------|
 | 200 | Success |
 | 201 | Created successfully |
-| 400 | Bad Request - Invalid input |
-| 401 | Unauthorized - Authentication required |
+| 400 | Bad Request - Invalid input or validation error |
+| 401 | Unauthorized - Authentication required or invalid |
 | 403 | Forbidden - Insufficient permissions |
 | 404 | Not Found - Resource doesn't exist |
 | 426 | Upgrade Required - Unsupported API version |
 | 429 | Too Many Requests - Rate limit exceeded |
-| 500 | Internal Server Error |
+| 500 | Internal Server Error - Unexpected error occurred |
 
-### Example Error Responses
+---
 
-**Bad Request (400)**:
+### Error Categories
+
+#### 1. Validation Errors (400)
+
+**Zod Validation Errors** - Automatic validation of request body/query parameters:
+
 ```json
 {
   "success": false,
-  "error": "dishId is required"
+  "error": "VALIDATION_ERROR",
+  "message": "Request validation failed",
+  "requestId": "req-abc123",
+  "details": [
+    {
+      "path": "items.0.dishId",
+      "message": "Required",
+      "code": "invalid_type"
+    },
+    {
+      "path": "items.0.quantity",
+      "message": "Number must be greater than 0",
+      "code": "too_small"
+    }
+  ]
 }
 ```
 
-**Unauthorized (401)**:
+**Invalid Query Parameters**:
 ```json
 {
   "success": false,
-  "error": "Session required to place orders"
+  "error": "INVALID_QUERY_PARAMS",
+  "message": "Invalid query parameters",
+  "requestId": "req-abc123",
+  "details": [
+    {
+      "path": "category",
+      "message": "Invalid enum value. Expected 'appetizer' | 'main course' | 'dessert' | 'beverage' | 'undefined', received 'invalid'"
+    }
+  ]
 }
 ```
 
-**Not Found (404)**:
+**Missing Required Parameters**:
 ```json
 {
   "success": false,
-  "error": "Dish not found"
+  "error": "MISSING_DISH_ID",
+  "message": "Dish ID is required in the URL path",
+  "requestId": "req-abc123"
 }
 ```
 
-**Unsupported Version (426)**:
+**Invalid Data**:
 ```json
 {
   "success": false,
-  "error": "Unsupported API version"
+  "error": "INVALID_TABLE_NUMBER",
+  "message": "Table number must be a positive integer",
+  "requestId": "req-abc123"
 }
 ```
+
+**Invalid JSON Body**:
+```json
+{
+  "success": false,
+  "error": "INVALID_JSON",
+  "message": "Invalid JSON in request body",
+  "requestId": "req-abc123"
+}
+```
+
+**Invalid ID Format**:
+```json
+{
+  "success": false,
+  "error": "INVALID_ID_FORMAT",
+  "message": "Invalid ID format provided",
+  "requestId": "req-abc123"
+}
+```
+
+---
+
+#### 2. Authentication Errors (401)
+
+**Missing API Key**:
+```json
+{
+  "success": false,
+  "error": "API_KEY_REQUIRED",
+  "message": "API key is required. Provide it via x-api-key header",
+  "requestId": "req-abc123"
+}
+```
+
+**Invalid API Key**:
+```json
+{
+  "success": false,
+  "error": "INVALID_API_KEY",
+  "message": "Invalid API key provided",
+  "requestId": "req-abc123"
+}
+```
+
+**Expired API Key**:
+```json
+{
+  "success": false,
+  "error": "API_KEY_EXPIRED",
+  "message": "API key has expired. Please request a new one",
+  "requestId": "req-abc123"
+}
+```
+
+**API Key Not Associated**:
+```json
+{
+  "success": false,
+  "error": "API_KEY_NOT_ASSOCIATED",
+  "message": "API key is not associated with any staff member",
+  "requestId": "req-abc123"
+}
+```
+
+**Missing Session**:
+```json
+{
+  "success": false,
+  "error": "SESSION_ID_REQUIRED",
+  "message": "Session identifier required. Provide via x-session-id header, session cookie, or ?session query parameter",
+  "requestId": "req-abc123"
+}
+```
+
+**Invalid Session**:
+```json
+{
+  "success": false,
+  "error": "INVALID_SESSION",
+  "message": "Invalid or expired session identifier",
+  "requestId": "req-abc123"
+}
+```
+
+**Session Required for Action**:
+```json
+{
+  "success": false,
+  "error": "SESSION_REQUIRED",
+  "message": "Valid session required to place orders",
+  "requestId": "req-abc123"
+}
+```
+
+**Staff Authentication Required**:
+```json
+{
+  "success": false,
+  "error": "STAFF_AUTH_REQUIRED",
+  "message": "Staff authentication required. Please provide valid API key",
+  "requestId": "req-abc123"
+}
+```
+
+---
+
+#### 3. Authorization Errors (403)
+
+**Insufficient Permissions**:
+```json
+{
+  "success": false,
+  "error": "INSUFFICIENT_PERMISSIONS",
+  "message": "Insufficient permissions. Required role(s): admin, waiter",
+  "requestId": "req-abc123"
+}
+```
+
+---
+
+#### 4. Not Found Errors (404)
+
+**Resource Not Found**:
+```json
+{
+  "success": false,
+  "error": "DISH_NOT_FOUND",
+  "message": "Dish with ID '507f1f77bcf86cd799439011' not found",
+  "requestId": "req-abc123"
+}
+```
+
+```json
+{
+  "success": false,
+  "error": "ORDER_NOT_FOUND",
+  "message": "Order with ID '507f1f77bcf86cd799439011' not found",
+  "requestId": "req-abc123"
+}
+```
+
+```json
+{
+  "success": false,
+  "error": "SESSION_NOT_FOUND",
+  "message": "Session with UUID 'abc-123-def' not found",
+  "requestId": "req-abc123"
+}
+```
+
+```json
+{
+  "success": false,
+  "error": "TABLE_NOT_FOUND",
+  "message": "Table number 5 not found",
+  "requestId": "req-abc123"
+}
+```
+
+**Endpoint Not Found**:
+```json
+{
+  "success": false,
+  "error": "ENDPOINT_NOT_FOUND",
+  "message": "API endpoint '/api/v1/invalid' not found",
+  "requestId": "req-abc123"
+}
+```
+
+```json
+{
+  "success": false,
+  "error": "NOT_FOUND",
+  "message": "The requested resource was not found",
+  "requestId": "req-abc123"
+}
+```
+
+---
+
+#### 5. Version Errors (426)
+
+**Unsupported API Version**:
+```json
+{
+  "success": false,
+  "error": "UNSUPPORTED_API_VERSION",
+  "message": "API version 'v2' is not supported. Available version: v1",
+  "requestId": "req-abc123"
+}
+```
+
+---
+
+#### 6. Server Errors (500)
+
+**Internal Server Error**:
+```json
+{
+  "success": false,
+  "error": "INTERNAL_SERVER_ERROR",
+  "message": "An unexpected error occurred",
+  "requestId": "req-abc123"
+}
+```
+
+**Note**: Internal errors never expose sensitive details like stack traces or database errors to clients. Use the `requestId` to look up detailed logs on the server.
+
+---
+
+### Common Error Codes Reference
+
+#### Authentication & Authorization
+| Error Code | Status | Description |
+|------------|--------|-------------|
+| `API_KEY_REQUIRED` | 401 | No API key provided in request |
+| `INVALID_API_KEY` | 401 | API key is not valid |
+| `API_KEY_EXPIRED` | 401 | API key has expired |
+| `API_KEY_NOT_ASSOCIATED` | 401 | API key not linked to staff member |
+| `SESSION_ID_REQUIRED` | 401 | No session identifier provided |
+| `INVALID_SESSION` | 401 | Session ID is invalid or expired |
+| `SESSION_REQUIRED` | 401 | Action requires active session |
+| `SESSION_NOT_FOUND` | 404/401 | Session does not exist |
+| `STAFF_AUTH_REQUIRED` | 401 | Staff authentication needed |
+| `INSUFFICIENT_PERMISSIONS` | 403 | User lacks required role |
+
+#### Validation & Input
+| Error Code | Status | Description |
+|------------|--------|-------------|
+| `VALIDATION_ERROR` | 400 | Request body/query validation failed |
+| `INVALID_QUERY_PARAMS` | 400 | Query parameters are invalid |
+| `INVALID_JSON` | 400 | Invalid JSON in request body |
+| `INVALID_ID_FORMAT` | 400 | Invalid MongoDB ObjectId format |
+| `MISSING_DISH_ID` | 400 | Dish ID not provided |
+| `MISSING_ORDER_ID` | 400 | Order ID not provided |
+| `MISSING_SESSION_UUID` | 400 | Session UUID not provided |
+| `INVALID_TABLE_NUMBER` | 400 | Table number format is invalid |
+
+#### Resources
+| Error Code | Status | Description |
+|------------|--------|-------------|
+| `DISH_NOT_FOUND` | 404 | Dish does not exist |
+| `ORDER_NOT_FOUND` | 404 | Order does not exist |
+| `ORDER_OR_DISH_NOT_FOUND` | 404 | Order or dish in order not found |
+| `TABLE_NOT_FOUND` | 404 | Table does not exist |
+| `ENDPOINT_NOT_FOUND` | 404 | API endpoint does not exist |
+| `NOT_FOUND` | 404 | Generic resource not found |
+
+#### System
+| Error Code | Status | Description |
+|------------|--------|-------------|
+| `UNSUPPORTED_API_VERSION` | 426 | API version not supported |
+| `INTERNAL_SERVER_ERROR` | 500 | Unexpected server error |
+| `DATABASE_ERROR` | 500 | Database operation failed (internal error) |
+
+---
+
+### Error Handling Best Practices
+
+#### For Client Developers
+
+1. **Always check the `success` field** first to determine if the request succeeded
+2. **Use the `error` field** for programmatic error handling (switch/case statements)
+3. **Display the `message` field** to users for human-readable feedback
+4. **Log the `requestId`** for support and debugging purposes
+5. **Parse the `details` field** for validation errors to highlight specific form fields
+
+**Example Error Handling (JavaScript)**:
+```javascript
+try {
+  const response = await fetch('/api/v1/dishes', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': apiKey
+    },
+    body: JSON.stringify(dishData)
+  });
+  
+  const data = await response.json();
+  
+  if (!data.success) {
+    // Handle specific error types
+    switch (data.error) {
+      case 'VALIDATION_ERROR':
+        // Show field-specific errors
+        data.details.forEach(err => {
+          showFieldError(err.path, err.message);
+        });
+        break;
+      
+      case 'API_KEY_EXPIRED':
+        // Redirect to login or refresh token
+        redirectToLogin();
+        break;
+      
+      case 'INSUFFICIENT_PERMISSIONS':
+        // Show permission denied message
+        showError(data.message);
+        break;
+      
+      default:
+        // Generic error handling
+        showError(data.message);
+        logError(data.requestId, data.error);
+    }
+    return;
+  }
+  
+  // Handle success
+  console.log('Dish created:', data.data);
+} catch (error) {
+  // Network or parsing error
+  console.error('Request failed:', error);
+}
+```
+
+#### For Support/Debugging
+
+When reporting issues or debugging:
+1. Include the `requestId` to correlate with server logs
+2. Note the `error` code for quick identification
+3. Check server logs using the `requestId` for full stack traces and context
 
 ---
 

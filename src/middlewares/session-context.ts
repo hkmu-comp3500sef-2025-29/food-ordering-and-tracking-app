@@ -1,5 +1,6 @@
 import type { NextFunction, Request, Response } from "express";
 
+import { safeDbOperation } from "#/error/index.js";
 import { asyncHandler } from "#/middlewares/async-handler.js";
 import { findSession, WithUuid } from "#/modules/session/session.repo.js";
 import {
@@ -43,27 +44,52 @@ export function sessionContext(
                     next();
                     return;
                 }
-                throw errors.unauthorized("Session identifier required");
+                throw errors.unauthorized(
+                    "Session identifier required. Provide via x-session-id header, session cookie, or ?session query parameter",
+                    401,
+                    "SESSION_ID_REQUIRED",
+                );
             }
 
-            const session = await findSession([
-                WithUuid(token),
-            ]);
+            let session;
+            try {
+                session = await safeDbOperation(
+                    async () => await findSession([WithUuid(token)]),
+                    "Failed to validate session",
+                );
+            } catch (error: any) {
+                // If UUID validation fails, treat as invalid session
+                if (error.message && error.message.includes("Invalid uuid")) {
+                    throw errors.unauthorized(
+                        "Invalid or expired session identifier",
+                        401,
+                        "INVALID_SESSION",
+                    );
+                }
+                throw error;
+            }
+
             if (!session) {
                 if (optional) {
                     req.sessionContext = null;
                     next();
                     return;
                 }
-                throw errors.unauthorized("Invalid or expired session");
+                throw errors.unauthorized(
+                    "Invalid or expired session identifier",
+                    401,
+                    "INVALID_SESSION",
+                );
             }
 
             let table = null;
             if (session.table) {
                 try {
-                    table = await findTable([
-                        WithTableMongoId(session.table),
-                    ]);
+                    table = await safeDbOperation(
+                        async () =>
+                            await findTable([WithTableMongoId(session.table)]),
+                        "Failed to fetch table information",
+                    );
                 } catch {
                     // table lookup is best-effort; keep going if it fails
                     table = null;

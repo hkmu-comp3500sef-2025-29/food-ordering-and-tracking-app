@@ -19,11 +19,16 @@ router.use("/dishes", dishesRouter);
 router.use("/orders", ordersRouter);
 router.use("/sessions", sessionsRouter);
 
-router.use((_req, res) => {
-    res.status(404).json({
+router.use((req, res) => {
+    const payload: { success: false; error: string; message: string; requestId?: string } = {
         success: false,
-        error: "Endpoint not found",
-    });
+        error: "ENDPOINT_NOT_FOUND",
+        message: `API endpoint '${req.path}' not found`,
+    };
+    if (req.requestId) {
+        payload.requestId = req.requestId;
+    }
+    res.status(404).json(payload);
 });
 
 export { router as routerV1 };

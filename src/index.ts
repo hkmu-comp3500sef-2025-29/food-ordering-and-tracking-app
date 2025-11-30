@@ -1,4 +1,4 @@
-import type { Express, Request, Response } from "express";
+import type { Express } from "express";
 
 import compression from "compression";
 import cookieParser from "cookie-parser";
@@ -10,9 +10,9 @@ import { helmetConfig } from "#/configs/helmet.js";
 import { httpLogger, logger } from "#/configs/logger.js";
 import { initDatabase, loadTrustedIps } from "#/configs/root.init.js";
 import { PATH_PUBLIC, PATH_VIEWS } from "#/constants/index.js";
+import { globalErrorHandler } from "#/error/index.js";
 import { requestContext, responseTimer } from "#/middlewares/index.js";
 import { router } from "#/router/index.js";
-import { isHttpError } from "#/utils/error/index.js";
 
 const Config = ConfigManager.getInstance();
 
@@ -48,30 +48,8 @@ app.use("/static", express.static(PATH_PUBLIC));
 
 app.use("/", router);
 
-// Basic error handler, returns 500 if unhandled
-app.use((err: Error, req: Request, res: Response): void => {
-    if (isHttpError(err)) {
-        const payload = {
-            success: false,
-            error: err.errorCode,
-            message: err.message ? err.message : "Internal Server Error",
-            requestId: req.requestId,
-        };
-        logger.warn(
-            "HTTP Error:",
-            payload,
-            err.errorDetails ? err.errorDetails : "",
-        );
-        res.status(err.statusCode).json(payload);
-        return;
-    }
-    logger.error("Unhandled error:", err);
-    res.status(500).json({
-        success: false,
-        error: "Internal Server Error",
-        requestId: req.requestId,
-    });
-});
+// Global error handler - handles all errors with consistent format
+app.use(globalErrorHandler);
 
 async function start(): Promise<void> {
     const PORT: number = Config.get("PORT");

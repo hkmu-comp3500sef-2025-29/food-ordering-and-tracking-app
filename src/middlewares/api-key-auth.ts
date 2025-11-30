@@ -2,6 +2,7 @@ import type { NextFunction, Request, Response } from "express";
 
 import z from "zod";
 
+import { safeDbOperation } from "#/error/index.js";
 import { asyncHandler } from "#/middlewares/async-handler.js";
 import { findApiKey, WithApiKey } from "#/modules/apikey/apikey.repo.js";
 import {
@@ -47,27 +48,59 @@ export function apiKeyAuth(
                 // Optional auth failed - don't set role at all
                 return next();
             }
-            throw errors.unauthorized("API key required");
+            throw errors.unauthorized(
+                "API key is required. Provide it via x-api-key header",
+                401,
+                "API_KEY_REQUIRED",
+            );
         }
 
-        const apiKeyDoc = await findApiKey([
-            WithApiKey(apiKey),
-        ]);
+        let apiKeyDoc;
+        try {
+            apiKeyDoc = await safeDbOperation(
+                async () => await findApiKey([WithApiKey(apiKey)]),
+                "Failed to validate API key",
+            );
+        } catch (error: any) {
+            // If format validation fails, treat as invalid API key
+            if (error.message && error.message.includes("Invalid API key format")) {
+                throw errors.unauthorized(
+                    "Invalid API key provided",
+                    401,
+                    "INVALID_API_KEY",
+                );
+            }
+            throw error;
+        }
+
         if (!apiKeyDoc) {
-            throw errors.unauthorized("Invalid API key");
+            throw errors.unauthorized(
+                "Invalid API key provided",
+                401,
+                "INVALID_API_KEY",
+            );
         }
         if (
             apiKeyDoc.expiredAt &&
             apiKeyDoc.expiredAt.getTime() <= Date.now()
         ) {
-            throw errors.unauthorized("API key expired");
+            throw errors.unauthorized(
+                "API key has expired. Please request a new one",
+                401,
+                "API_KEY_EXPIRED",
+            );
         }
-        const staff = await findStaff([
-            WithStaffApiKey(apiKey),
-        ]);
+
+        const staff = await safeDbOperation(
+            async () => await findStaff([WithStaffApiKey(apiKey)]),
+            "Failed to find staff member",
+        );
+
         if (!staff) {
             throw errors.unauthorized(
-                "API key is not associated with a staff member",
+                "API key is not associated with any staff member",
+                401,
+                "API_KEY_NOT_ASSOCIATED",
             );
         }
 
