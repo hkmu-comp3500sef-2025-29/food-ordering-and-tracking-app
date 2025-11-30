@@ -44,6 +44,63 @@ const createDishSchema = z.object({
     image: z.string().optional(), // base64 encoded image string
 });
 
+type NewDish = z.infer<typeof createDishSchema>;
+
+router.post("/init", async (_req, res) => {
+    const data = [
+        {
+            name: "Bugger",
+            category: "main course",
+            description: "The best burger in the world",
+            price: 35,
+            image: "https://foodish-api.com/images/burger/burger24.jpg",
+        },
+        {
+            name: "Fried Rice",
+            category: "main course",
+            description: "The best fried rice in the world",
+            price: 49,
+            image: "https://foodish-api.com/images/rice/rice8.jpg",
+        },
+        {
+            name: "Pizza",
+            category: "main course",
+            description: "The best pizza in the world",
+            price: 60,
+            image: "https://foodish-api.com/images/pizza/pizza21.jpg",
+        },
+        {
+            name: "Pasta",
+            category: "main course",
+            description: "The best pasta in the world",
+            price: 45,
+            image: "https://foodish-api.com/images/pasta/pasta33.jpg",
+        },
+    ] satisfies NewDish[];
+
+    for await (const dish of data) {
+        const params = [
+            WithName(dish.name),
+            WithCategory(dish.category),
+            WithPrice(dish.price),
+        ];
+
+        if (dish.description) {
+            params.push(WithDescription(dish.description));
+        }
+
+        if (dish.image) {
+            params.push(WithImage(dish.image));
+        }
+
+        await createDish(params);
+    }
+
+    return res.json({
+        success: true,
+    });
+});
+
 router.get(
     "/",
     asyncHandler(async (req, res) => {
