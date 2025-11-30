@@ -71,11 +71,13 @@ const updateDishStatusSchema = z.object({
 router.post(
     "/",
     orderCreationLimiter,
-    sessionContext({ optional: true }),
+    sessionContext({
+        optional: true,
+    }),
     asyncHandler(async (req, res) => {
         // Validate request body first to give better error messages
         const payload = createOrderSchema.parse(req.body);
-        
+
         // Then validate session
         if (req.sessionContext === null) {
             // Session middleware ran but no session token was provided
@@ -93,7 +95,7 @@ router.post(
                 "SESSION_REQUIRED",
             );
         }
-        
+
         const params = [
             WithSessionId(req.sessionContext.session._id as string),
             WithDishItems(
@@ -173,9 +175,11 @@ router.get(
                 "MISSING_ORDER_ID",
             );
         }
-        const order = await safeDbOperation(() => findOrder([
-            WithMongoId(orderId),
-        ]));
+        const order = await safeDbOperation(() =>
+            findOrder([
+                WithMongoId(orderId),
+            ]),
+        );
         if (!order) {
             throw errors.notFound(
                 `Order with ID '${orderId}' not found`,
@@ -215,17 +219,19 @@ router.patch(
             );
         }
         const payload = updateDishStatusSchema.parse(req.body);
-        const updated = await safeDbOperation(() => updateOrderDish(
-            [
-                WithMongoId(orderId),
-            ],
-            [
-                WithDishId(dishId),
-            ],
-            {
-                status: payload.status,
-            },
-        ));
+        const updated = await safeDbOperation(() =>
+            updateOrderDish(
+                [
+                    WithMongoId(orderId),
+                ],
+                [
+                    WithDishId(dishId),
+                ],
+                {
+                    status: payload.status,
+                },
+            ),
+        );
         if (!updated) {
             throw errors.notFound(
                 `Order with ID '${orderId}' or dish with ID '${dishId}' not found`,

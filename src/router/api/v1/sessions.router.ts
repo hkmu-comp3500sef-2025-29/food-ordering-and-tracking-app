@@ -50,7 +50,9 @@ const listQuerySchema = z.object({
 
 router.get(
     "/current",
-    sessionContext({ optional: true }),
+    sessionContext({
+        optional: true,
+    }),
     asyncHandler(async (req, res) => {
         if (!req.sessionContext || !req.sessionContext.session) {
             throw errors.unauthorized(
@@ -115,9 +117,11 @@ router.get(
                 "MISSING_SESSION_UUID",
             );
         }
-        const session = await safeDbOperation(() => findSession([
-            WithUuid(uuid),
-        ]));
+        const session = await safeDbOperation(() =>
+            findSession([
+                WithUuid(uuid),
+            ]),
+        );
         if (!session) {
             throw errors.notFound(
                 `Session with UUID '${uuid}' not found`,
@@ -158,9 +162,11 @@ router.post(
                     "INVALID_TABLE_NUMBER",
                 );
             }
-            const tableDoc = await safeDbOperation(() => findTable([
-                WithTableByNumber(tableNumber),
-            ]));
+            const tableDoc = await safeDbOperation(() =>
+                findTable([
+                    WithTableByNumber(tableNumber),
+                ]),
+            );
             if (!tableDoc) {
                 throw errors.notFound(
                     `Table number ${tableNumber} not found`,

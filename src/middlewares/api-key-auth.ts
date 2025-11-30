@@ -37,100 +37,115 @@ export function apiKeyAuth(
     options: ApiKeyAuthOptions = {},
 ): (req: Request, res: Response, next: NextFunction) => void {
     const { optional = false } = options;
-    return asyncHandler(async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-        const cookieAuthSucceeded = await tryAuthWithCookie(req, res);
-        if (cookieAuthSucceeded) {
-            return next();
-        }
-        const apiKey = extractApiKey(req);
-        if (!apiKey) {
-            if (optional) {
-                // Optional auth failed - don't set role at all
+    return asyncHandler(
+        async (
+            req: Request,
+            res: Response,
+            next: NextFunction,
+        ): Promise<void> => {
+            const cookieAuthSucceeded = await tryAuthWithCookie(req, res);
+            if (cookieAuthSucceeded) {
                 return next();
             }
-            throw errors.unauthorized(
-                "API key is required. Provide it via x-api-key header",
-                401,
-                "API_KEY_REQUIRED",
-            );
-        }
+            const apiKey = extractApiKey(req);
+            if (!apiKey) {
+                if (optional) {
+                    // Optional auth failed - don't set role at all
+                    return next();
+                }
+                throw errors.unauthorized(
+                    "API key is required. Provide it via x-api-key header",
+                    401,
+                    "API_KEY_REQUIRED",
+                );
+            }
 
-        let apiKeyDoc;
-        try {
-            apiKeyDoc = await safeDbOperation(
-                async () => await findApiKey([WithApiKey(apiKey)]),
-                "Failed to validate API key",
-            );
-        } catch (error: any) {
-            // If format validation fails, treat as invalid API key
-            if (error.message && error.message.includes("Invalid API key format")) {
+            let apiKeyDoc;
+            try {
+                apiKeyDoc = await safeDbOperation(
+                    async () =>
+                        await findApiKey([
+                            WithApiKey(apiKey),
+                        ]),
+                    "Failed to validate API key",
+                );
+            } catch (error: any) {
+                // If format validation fails, treat as invalid API key
+                if (
+                    error.message &&
+                    error.message.includes("Invalid API key format")
+                ) {
+                    throw errors.unauthorized(
+                        "Invalid API key provided",
+                        401,
+                        "INVALID_API_KEY",
+                    );
+                }
+                throw error;
+            }
+
+            if (!apiKeyDoc) {
                 throw errors.unauthorized(
                     "Invalid API key provided",
                     401,
                     "INVALID_API_KEY",
                 );
             }
-            throw error;
-        }
+            if (
+                apiKeyDoc.expiredAt &&
+                apiKeyDoc.expiredAt.getTime() <= Date.now()
+            ) {
+                throw errors.unauthorized(
+                    "API key has expired. Please request a new one",
+                    401,
+                    "API_KEY_EXPIRED",
+                );
+            }
 
-        if (!apiKeyDoc) {
-            throw errors.unauthorized(
-                "Invalid API key provided",
-                401,
-                "INVALID_API_KEY",
+            const staff = await safeDbOperation(
+                async () =>
+                    await findStaff([
+                        WithStaffApiKey(apiKey),
+                    ]),
+                "Failed to find staff member",
             );
-        }
-        if (
-            apiKeyDoc.expiredAt &&
-            apiKeyDoc.expiredAt.getTime() <= Date.now()
-        ) {
-            throw errors.unauthorized(
-                "API key has expired. Please request a new one",
-                401,
-                "API_KEY_EXPIRED",
-            );
-        }
 
-        const staff = await safeDbOperation(
-            async () => await findStaff([WithStaffApiKey(apiKey)]),
-            "Failed to find staff member",
-        );
+            if (!staff) {
+                throw errors.unauthorized(
+                    "API key is not associated with any staff member",
+                    401,
+                    "API_KEY_NOT_ASSOCIATED",
+                );
+            }
 
-        if (!staff) {
-            throw errors.unauthorized(
-                "API key is not associated with any staff member",
-                401,
-                "API_KEY_NOT_ASSOCIATED",
-            );
-        }
+            req.role = staff.role;
 
-        req.role = staff.role;
+            const cookieConfig = getCookieConfig();
+            // Handle null expiredAt - use cookie maxAge as fallback
+            const apiKeyExpiry = apiKeyDoc.expiredAt
+                ? apiKeyDoc.expiredAt.getTime()
+                : Number.MAX_SAFE_INTEGER;
+            const cookieExpiry = Date.now() + cookieConfig.maxAge;
+            const expiredTime = Math.min(apiKeyExpiry, cookieExpiry);
 
-        const cookieConfig = getCookieConfig();
-        // Handle null expiredAt - use cookie maxAge as fallback
-        const apiKeyExpiry = apiKeyDoc.expiredAt
-            ? apiKeyDoc.expiredAt.getTime()
-            : Number.MAX_SAFE_INTEGER;
-        const cookieExpiry = Date.now() + cookieConfig.maxAge;
-        const expiredTime = Math.min(apiKeyExpiry, cookieExpiry);
+            const payload: AuthCookiePayload = {
+                role: staff.role,
+                apiKey: apiKey,
+                expiredAt: expiredTime,
+            };
+            const cookieValue = createAuthCookie(payload);
 
-        const payload: AuthCookiePayload = {
-            role: staff.role,
-            apiKey: apiKey,
-            expiredAt: expiredTime,
-        };
-        const cookieValue = createAuthCookie(payload);
+            res.cookie(cookieConfig.name, cookieValue, {
+                httpOnly: cookieConfig.httpOnly,
+                secure: cookieConfig.secure,
+                sameSite: cookieConfig.sameSite,
+                maxAge: cookieConfig.maxAge,
+                path: cookieConfig.path,
+            });
 
-        res.cookie(cookieConfig.name, cookieValue, {
-            httpOnly: cookieConfig.httpOnly,
-            secure: cookieConfig.secure,
-            sameSite: cookieConfig.sameSite,
-            maxAge: cookieConfig.maxAge,
-            path: cookieConfig.path,
-        });
-        
-        next();
-    });
+            next();
+        },
+    );
 }
 
 async function tryAuthWithCookie(

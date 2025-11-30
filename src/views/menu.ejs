@@ -65,6 +65,8 @@
             aspect-ratio: 1;
             border-radius: 8px;
             margin: 8px;
+            object-fit: cover;
+            object-position: center;
         }
 
         .menu-item-info {
@@ -114,7 +116,7 @@
             <% if (items && items.length > 0) { %>
                 <% items.forEach(item => { %>
                     <div class="menu-item-card">
-                        <a href="/view/product/<%= item.id %>" class="menu-item-link">
+                        <a href="/menu/customize/<%= item.id %>" class="menu-item-link">
                             <% if (item.image) { %>
                                 <img src="<%= item.image %>" alt="<%= item.name %>" class="menu-item-image" />
                             <% } else { %>

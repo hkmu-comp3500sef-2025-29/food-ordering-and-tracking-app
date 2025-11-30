@@ -10,13 +10,14 @@ import {
     requireStaffRole,
     sessionContext,
 } from "#/middlewares/index.js";
-import { findDishes } from "#/modules/dish/dish.repo.js";
+import { WithMongoId } from "#/modules/common/params.js";
+import { findDish, findDishes } from "#/modules/dish/dish.repo.js";
 import {
     findSession,
     findSessions,
     WithUuid,
 } from "#/modules/session/session.repo.js";
-import { httpErrors as errors } from "#/utils/error/index.js";
+import { httpErrors as errors, httpErrors } from "#/utils/error/index.js";
 
 const router: Router = Router({
     mergeParams: true,
@@ -48,6 +49,32 @@ router.get("/menu", ...navStack, async (_req: Request, res: Response) => {
         items,
     });
 });
+
+router.get(
+    "/menu/customize/:id",
+    ...navStack,
+    async (req: Request, res: Response) => {
+        res.locals.page = "menu-customize";
+
+        const id: string | undefined = req.params.id;
+
+        if (!id) {
+            throw httpErrors.badRequest("Dish ID is required");
+        }
+
+        const item: DishDocument | null = await findDish([
+            WithMongoId(id),
+        ]);
+
+        if (!item) {
+            throw httpErrors.notFound("Dish not found");
+        }
+
+        return res.render("customize", {
+            item,
+        });
+    },
+);
 
 router.get("/cart", ...navStack, (_req: Request, res: Response) => {
     res.locals.page = "cart";

@@ -20,7 +20,12 @@ router.use("/orders", ordersRouter);
 router.use("/sessions", sessionsRouter);
 
 router.use((req, res) => {
-    const payload: { success: false; error: string; message: string; requestId?: string } = {
+    const payload: {
+        success: false;
+        error: string;
+        message: string;
+        requestId?: string;
+    } = {
         success: false,
         error: "ENDPOINT_NOT_FOUND",
         message: `API endpoint '${req.path}' not found`,

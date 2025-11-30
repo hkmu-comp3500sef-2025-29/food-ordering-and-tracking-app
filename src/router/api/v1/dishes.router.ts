@@ -144,9 +144,11 @@ router.get(
                 "MISSING_DISH_ID",
             );
         }
-        const dish = await safeDbOperation(() => findDish([
-            WithMongoId(dishId),
-        ]));
+        const dish = await safeDbOperation(() =>
+            findDish([
+                WithMongoId(dishId),
+            ]),
+        );
         if (!dish) {
             throw errors.notFound(
                 `Dish with ID '${dishId}' not found`,
