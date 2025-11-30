@@ -1,11 +1,39 @@
-<header>
-    <div>
-        <strong><%= (navContext && navContext.restaurantName) || "Restaurant" %></strong>
+<div class="topbar">
+    <div class="topbar-left">
+        <div class="topbar-title"><%= (navContext && navContext.restaurantName) || "Restaurant" %></div>
+        <% if (navContext && navContext.tableNumber) { %>
+            <div>Table <%= navContext.tableNumber %></div>
+        <% } %>
     </div>
-    <% if (navContext && navContext.tableNumber) { %>
-        <div>Table <%= navContext.tableNumber %></div>
-    <% } %>
-    <div>
-        <button id="settings-btn">Settings</button>
+    <div class="topbar-right">
+        <select id="lang" name="lang">
+            <option value="en">Eng</option>
+            <option value="chi">中文</option>
+        </select>
     </div>
-</header>
+</div>
+
+<style>
+    .topbar {
+        z-index: 1;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        background: #fff;
+    }
+
+    .topbar-left {
+        float: left;
+        padding: 24px 16px;
+    }
+
+    .topbar-title {
+        font-weight: bold;
+    }
+
+    .topbar-right {
+        float: right;
+        padding: 24px 16px;
+    }
+</style>

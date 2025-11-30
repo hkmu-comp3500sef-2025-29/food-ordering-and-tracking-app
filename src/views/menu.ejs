@@ -92,13 +92,15 @@
         }
 
         .blank {
-            height: 100px;
+            height: 80px;
         }
     </style>
 </head>
 <body>
     <%- include("components/nav/top"); -%>
     <%- include("components/nav/bottom"); -%>
+
+    <div class="blank"></div>
 
     <main>
         <div class="menu-header">
@@ -134,7 +136,9 @@
                 <p>No items available at the moment.</p>
             <% } %>
         </div>
-        <div class="blank"></div>
     </main>
+
+    <div class="blank"></div>
 </body>
+
 </html>
