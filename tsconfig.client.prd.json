@@ -3,8 +3,16 @@
     "compilerOptions": {
         "module": "es2015",
         "moduleResolution": "node",
-        "rootDir": "./src/scripts",
-        "outDir": "./dist/public/scripts"
+        "rootDirs": [
+            "./src",
+            "./src/scripts"
+        ],
+        "outDir": "./dist/public/scripts",
+        "paths": {
+            "#/*": [
+                "./src/*"
+            ]
+        }
     },
     "include": [
         "./src/scripts/**/*"
