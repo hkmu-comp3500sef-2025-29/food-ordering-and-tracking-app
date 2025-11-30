@@ -28,7 +28,7 @@ The API uses two authentication methods:
 Staff endpoints require authentication via API key. Include the API key in your request headers:
 
 ```
-X-API-Key: your-api-key-here
+x-api-key: your-api-key-here
 ```
 
 **API Key Generation**:
@@ -221,7 +221,7 @@ POST /api/v1/dishes
 
 **Headers**:
 ```
-X-API-Key: your-api-key-here
+x-api-key: your-api-key-here
 ```
 
 **Request Body**:
@@ -263,7 +263,7 @@ X-API-Key: your-api-key-here
 **Example**:
 ```bash
 curl -X POST http://localhost:3000/api/v1/dishes
-  -H "X-API-Key: your-api-key-here" \
+  -H "x-api-key: your-api-key-here" \
   -H "Content-Type: application/json" \
   -d '{
     "name": "Caesar Salad",
@@ -371,7 +371,7 @@ GET /api/v1/orders
 
 **Headers**:
 ```
-X-API-Key: your-api-key-here
+x-api-key: your-api-key-here
 ```
 
 **Query Parameters**:
@@ -408,19 +408,19 @@ X-API-Key: your-api-key-here
 ```bash
 # Get all orders
 curl http://localhost:3000/api/v1/orders \
-  -H "X-API-Key: your-api-key-here"
+  -H "x-api-key: your-api-key-here"
 
 # Filter by status
 curl "http://localhost:3000/api/v1/orders?status=preparing" \
-  -H "X-API-Key: your-api-key-here"
+  -H "x-api-key: your-api-key-here"
 
 # Filter by session
 curl "http://localhost:3000/api/v1/orders?session=507f1f77bcf86cd799439015" \
-  -H "X-API-Key: your-api-key-here"
+  -H "x-api-key: your-api-key-here"
 
 # Multiple statuses and sort
 curl "http://localhost:3000/api/v1/orders?status=placed&status=confirmed&sort=desc" \
-  -H "X-API-Key: your-api-key-here"
+  -H "x-api-key: your-api-key-here"
 ```
 
 ---
@@ -436,7 +436,7 @@ GET /api/v1/orders/:orderId
 
 **Headers**:
 ```
-X-API-Key: your-api-key-here
+x-api-key: your-api-key-here
 ```
 
 **URL Parameters**:
@@ -468,7 +468,7 @@ X-API-Key: your-api-key-here
 **Example**:
 ```bash
 curl http://localhost:3000/api/v1/orders/507f1f77bcf86cd799439020 \
-  -H "X-API-Key: your-api-key-here"
+  -H "x-api-key: your-api-key-here"
 ```
 
 ---
@@ -484,7 +484,7 @@ PATCH /api/v1/orders/:orderId/dish/:dishId/status
 
 **Headers**:
 ```
-X-API-Key: your-api-key-here
+x-api-key: your-api-key-here
 ```
 
 **URL Parameters**:
@@ -529,7 +529,7 @@ X-API-Key: your-api-key-here
 **Example**:
 ```bash
 curl -X PATCH http://localhost:3000/api/v1/orders/507f1f77bcf86cd799439020/dish/507f1f77bcf86cd799439011/status \
-  -H "X-API-Key: your-api-key-here" \
+  -H "x-api-key: your-api-key-here" \
   -H "Content-Type: application/json" \
   -d '{
     "status": "preparing"
@@ -589,7 +589,7 @@ GET /api/v1/sessions
 
 **Headers**:
 ```
-X-API-Key: your-api-key-here
+x-api-key: your-api-key-here
 ```
 
 **Query Parameters**:
@@ -618,11 +618,11 @@ X-API-Key: your-api-key-here
 ```bash
 # Get all sessions
 curl http://localhost:3000/api/v1/sessions \
-  -H "X-API-Key: your-api-key-here"
+  -H "x-api-key: your-api-key-here"
 
 # Filter by status
 curl "http://localhost:3000/api/v1/sessions?status=active" \
-  -H "X-API-Key: your-api-key-here"
+  -H "x-api-key: your-api-key-here"
 ```
 
 ---
@@ -638,7 +638,7 @@ GET /api/v1/sessions/:uuid
 
 **Headers**:
 ```
-X-API-Key: your-api-key-here
+x-api-key: your-api-key-here
 ```
 
 **URL Parameters**:
@@ -664,7 +664,7 @@ X-API-Key: your-api-key-here
 **Example**:
 ```bash
 curl http://localhost:3000/api/v1/sessions/550e8400-e29b-41d4-a716-446655440000 \
-  -H "X-API-Key: your-api-key-here"
+  -H "x-api-key: your-api-key-here"
 ```
 
 ---
@@ -682,7 +682,7 @@ POST /api/v1/sessions
 
 **Headers**:
 ```
-X-API-Key: your-api-key-here
+x-api-key: your-api-key-here
 ```
 
 **Request Body**:
@@ -725,7 +725,7 @@ X-API-Key: your-api-key-here
 ```bash
 # Create session by table number
 curl -X POST http://localhost:3000/api/v1/sessions \
-  -H "X-API-Key: your-api-key-here" \
+  -H "x-api-key: your-api-key-here" \
   -H "Content-Type: application/json" \
   -d '{
     "tableNumber": 5
@@ -733,7 +733,7 @@ curl -X POST http://localhost:3000/api/v1/sessions \
 
 # Create session by table ID
 curl -X POST http://localhost:3000/api/v1/sessions \
-  -H "X-API-Key: your-api-key-here" \
+  -H "x-api-key: your-api-key-here" \
   -H "Content-Type: application/json" \
   -d '{
     "tableId": "507f1f77bcf86cd799439005"
@@ -753,7 +753,7 @@ PATCH /api/v1/sessions/:uuid/close
 
 **Headers**:
 ```
-X-API-Key: your-api-key-here
+x-api-key: your-api-key-here
 ```
 
 **URL Parameters**:
@@ -780,7 +780,7 @@ X-API-Key: your-api-key-here
 **Example**:
 ```bash
 curl -X PATCH http://localhost:3000/api/v1/sessions/550e8400-e29b-41d4-a716-446655440000/close \
-  -H "X-API-Key: your-api-key-here"
+  -H "x-api-key: your-api-key-here"
 ```
 
 **Important**: When a session is closed, the associated table is automatically released and becomes available for new sessions.
