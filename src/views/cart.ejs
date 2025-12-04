@@ -11,7 +11,7 @@
 
 <body>
     <%- include("components/nav/top"); -%>
-    <%- include("components/sidebar/settings"); -%>
+
     <main>
         <div id="outer-container">
             <div id="cart-container">
@@ -36,6 +36,9 @@
             <button type="button" id="place-order">Place Order</button>
         </div>
     </main>
+
+    <%- include("components/sidebar/settings"); -%>
+    
     <script type="module" src="/static/scripts/cart/cart.js"></script>
     <script type="module" src="/static/scripts/settings/settings.js"></script>
 </body>

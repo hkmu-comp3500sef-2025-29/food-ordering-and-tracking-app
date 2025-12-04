@@ -7,6 +7,7 @@
     <style>
         body {
             background-color: #eee;
+            margin: 0;
         }
 
         .menu-header {
@@ -44,6 +45,8 @@
             display: flex;
             flex-wrap: wrap;
             gap: 16px;
+            padding-left: 16px;
+            padding-right: 16px;
         }
 
         .menu-item-card {
@@ -92,17 +95,10 @@
             cursor: pointer;
             border-radius: 100%;
         }
-
-        .blank {
-            height: 80px;
-        }
     </style>
 </head>
 <body>
     <%- include("components/nav/top"); -%>
-    <%- include("components/nav/bottom"); -%>
-
-    <div class="blank"></div>
 
     <main>
         <div class="menu-header">
@@ -140,7 +136,7 @@
         </div>
     </main>
 
-    <div class="blank"></div>
+    <%- include("components/nav/bottom"); -%>
 </body>
 
 </html>

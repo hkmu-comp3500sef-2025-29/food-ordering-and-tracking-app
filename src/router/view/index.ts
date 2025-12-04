@@ -86,11 +86,6 @@ router.get("/record", ...navStack, (_req: Request, res: Response) => {
     res.render("record");
 });
 
-router.get("/settings", ...navStack, (_req: Request, res: Response) => {
-    res.locals.page = "settings";
-    res.render("settings");
-});
-
 router.get(
     "/admin",
     ...navStack,
