@@ -214,9 +214,12 @@
 #outer-container #cart-container .item-container .column-3 .customize-btn {
     width: 160px;
     height: 45px;
+    padding-top: 6px;
     font-size: large;
     font-weight: bold;
     color: var(--color--orange);
+    text-align: center;
+    text-decoration: none;
     cursor: pointer;
     background-color: var(--color-white);
     border: 3px solid var(--color--orange);

@@ -10,6 +10,8 @@ node_modules/
 
 # Client build on dev
 /public/scripts/**
+/public/modules
+/public/types
 /src/modules/dish/dish.schema.js
 /src/types/cart.js
 

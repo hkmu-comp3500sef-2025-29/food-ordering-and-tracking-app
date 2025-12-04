@@ -7,7 +7,7 @@
             "./src",
             "./src/scripts"
         ],
-        "outDir": "./dist/public/scripts",
+        "outDir": "./dist/public",
         "paths": {
             "#/*": [
                 "./src/*"

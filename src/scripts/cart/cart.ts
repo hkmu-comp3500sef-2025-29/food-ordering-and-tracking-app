@@ -51,6 +51,7 @@ const loadCartView = async (cart: CartItem[]): Promise<void> => {
               </div>
               <div class="column-3">
                   <span class="item-price">$${data.price}</span>
+                  <a class="customize-btn" href="/menu/customize/${data._id}">Customize</a>
               </div>
             `;
 
