@@ -1,9 +1,11 @@
 import type { DishDocument } from "#/modules/dish/dish.schema.js";
 import type { CartItem } from "#/types/cart.js";
+import type { ClientSession } from "#/types/session.js";
 
 type OrderItemData = {
-    id: string;
+    dishId: string;
     quantity: number;
+    notes?: string;
 };
 
 const getCart = (): CartItem[] => {
@@ -16,6 +18,14 @@ const getDish = async (dishId: string): Promise<DishDocument | null> => {
     const result = await response.json();
     if (!result.success) return null;
     return result.data;
+};
+
+const getSession = (): ClientSession | null => {
+    const session: string | null = localStorage.getItem("session");
+    if (!session) return null;
+    const json = JSON.parse(session) as ClientSession;
+    if (!json.id) return null;
+    return json;
 };
 
 // load the cart
@@ -103,23 +113,15 @@ window.onload = async (): Promise<void> => {
             if (!dish) continue;
 
             items.push({
-                id: item.dishId,
+                dishId: item.dishId,
                 quantity: 1,
             });
         }
 
-        // Hardcoded tableId for now, will be replaced with actual data
-        const tableId = "T1";
+        const session = getSession();
 
-        const orderData = {
-            tableId: tableId,
-            items,
-        };
-
-        const apiKey = localStorage.getItem("api_key");
-
-        if (!apiKey) {
-            alert("API key is missing.");
+        if (!session) {
+            alert("Failed to get session");
             return void 0;
         }
 
@@ -128,9 +130,11 @@ window.onload = async (): Promise<void> => {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "x-api-key": apiKey,
+                    "x-session-id": session.id,
                 },
-                body: JSON.stringify(orderData),
+                body: JSON.stringify({
+                    items,
+                }),
             });
 
             if (response.ok) {

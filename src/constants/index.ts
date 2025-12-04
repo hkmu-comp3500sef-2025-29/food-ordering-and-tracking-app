@@ -38,6 +38,14 @@ const PATH_PUBLIC: string = IS_PRD
     ? path.join(PATH_ROOT, "dist", "public")
     : path.join(PATH_ROOT, "public");
 
+/**
+ * Hardcoded API key for the application.
+ *
+ * This is a worst practice, but it works.
+ */
+const HARDCODED_API_KEY =
+    "279fca02ea24283477a4e3723e490b69f2c9d99a714f26859038cd290fc7a875" as const;
+
 export {
     NODE_ENV,
     IS_DEV,
@@ -46,4 +54,5 @@ export {
     PATH_ENV,
     PATH_VIEWS,
     PATH_PUBLIC,
+    HARDCODED_API_KEY,
 };
