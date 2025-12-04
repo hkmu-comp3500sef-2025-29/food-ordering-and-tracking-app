@@ -36,7 +36,7 @@ const adminStack = [
     ]),
 ] as const;
 
-router.get("/", (_req: Request, res: Response) => {
+router.get("/", ...navStack, (_req: Request, res: Response) => {
     res.render("home");
 });
 
