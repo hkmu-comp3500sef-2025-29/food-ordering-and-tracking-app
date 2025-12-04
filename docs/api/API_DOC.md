@@ -283,9 +283,14 @@ curl -X POST http://localhost:3000/api/v1/dishes
 POST /api/v1/orders
 ```
 
-**Description**: Create a new order for the current session. Requires an active session (customer must be authenticated via session cookie).
+**Description**: Create a new order for the current session. Requires an active session (customer must be authenticated via session ID).
 
-**Authentication**: Session required (via cookie)
+**Authentication**: Session required (via header)
+
+**Headers**:
+```
+x-session-id: your-session-id-here
+```
 
 **Rate Limiting**: Special order creation rate limit applies
 
