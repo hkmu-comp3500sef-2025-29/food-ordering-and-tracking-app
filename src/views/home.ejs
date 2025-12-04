@@ -37,7 +37,8 @@
             color: #4b5563;
         }
 
-        a {
+        #menu-btn {
+            border: 0;
             display: inline-block;
             padding: 0.75rem 1.5rem;
             text-decoration: none;
@@ -55,7 +56,8 @@
     <main>
         <h1><%= (navContext && navContext.restaurantName) || "Restaurant" %></h1>
         <p>You may order food and track it here.</p>
-        <a href="/menu">Enter the menu</a>
+        <button id="menu-btn" type="button">Enter the menu</button>
     </main>
+    <script type="module" src="/static/scripts/home/button.js"></script>
 </body>
 </html>
