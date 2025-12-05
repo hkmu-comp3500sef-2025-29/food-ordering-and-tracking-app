@@ -29,7 +29,7 @@ const orderSchema = new Schema({
                     "ready",
                     "delivered",
                 ],
-                default: "placed",
+                default: "confirmed",
             },
         },
     ],
