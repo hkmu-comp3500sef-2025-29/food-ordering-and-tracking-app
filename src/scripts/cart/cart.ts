@@ -53,16 +53,19 @@ const loadCartView = async (cart: CartItem[]): Promise<void> => {
             itemContainer.dataset.id = data.id;
 
             itemContainer.innerHTML = `
-              <div class="column-1">
-                  <img class="item-icon" src="${data.image}" alt="Item Image">
-              </div>
-              <div class="column-2">
-                  <h2 class="item-name">${data.name}</h2>
-              </div>
-              <div class="column-3">
-                  <span class="item-price">$${data.price}</span>
-                  <a class="customize-btn" href="/menu/customize/${data._id}">Customize</a>
-              </div>
+                <div class="column-1">
+                    <img class="item-icon" src="${data.image}" alt="Item Image">
+                </div>
+                <div class="column-2">
+                    <h2 class="item-name">${data.name}</h2>
+                </div>
+                <div class="column-3">
+                    <span class="item-price">$${data.price}</span>
+                    <div>
+                        <a class="customize-btn" href="/menu/customize/${data._id}">Customize</a>
+                        <button type="button" class="delete-btn">Delete</button>
+                    </div>
+                </div>
             `;
 
             const dottedBox = document.createElement("div");
@@ -72,6 +75,27 @@ const loadCartView = async (cart: CartItem[]): Promise<void> => {
             itemsContainer.appendChild(dottedBox);
 
             totalPrice += data.price;
+
+            const delBtn: HTMLButtonElement | null =
+                itemContainer.querySelector(
+                    ".delete-btn",
+                ) as HTMLButtonElement | null;
+
+            if (!delBtn) continue;
+
+            delBtn.addEventListener("click", async (): Promise<void> => {
+                const currentCart: CartItem[] = getCart();
+
+                if (currentCart.length === 0) return void 0;
+
+                const newCart: CartItem[] = currentCart.filter(
+                    (c) => c.dishId !== item.dishId,
+                );
+
+                localStorage.setItem("cart", JSON.stringify(newCart));
+
+                await loadCartView(newCart);
+            });
         }
     } else {
         itemsContainer.innerHTML = `
