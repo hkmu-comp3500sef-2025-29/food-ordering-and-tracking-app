@@ -7,7 +7,64 @@
     <title>Order Record</title>
     <style>
         body {
+            margin: 0;
             background-color: #eee;
+        }
+
+        .record-header-title {
+            font-size: 32px;
+            font-weight: bold;
+            margin-left: 16px;
+        }
+
+        #record-content {
+            display: flex;
+            gap: 16px;
+            flex-direction: column;
+        }
+
+        .order {
+            flex: 1;
+            margin-left: 16px;
+            margin-right: 16px;
+            padding: 16px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16);
+        }
+
+        .order-title {
+            font-size: 20px;
+            font-weight: bold;
+            text-align: center;
+            padding: 8px;
+        }
+
+        table {
+            width: 100%;
+        }
+
+        .order-table-row-header {
+            border-top: 1px solid #ccc;
+            padding: 8px;
+            color: #777;
+        }
+
+        .order-table-row-header-item {
+            text-align: left;
+        }
+
+        .order-table-row-data {
+            border-top: 1px solid #ccc;
+            padding: 8px;
+        }
+
+        .order-item-status {
+            text-align: center;
+        }
+
+        .order-item-price {
+            text-align: center;
         }
     </style>
 </head>
@@ -16,11 +73,16 @@
     <%- include("components/nav/top"); -%>
 
     <main>
-        <h2>Order Record</h2>
-        <p>Track the status of all orders placed from this table.</p>
+        <div class="record-header">
+            <h1 class="record-header-title">Record</h1>
+        </div>
+
+        <div id="record-content"></div>
     </main>
 
     <%- include("components/nav/bottom"); -%>
+
+    <script type="module" src="/static/scripts/record/content.js"></script>
 </body>
 
 </html>
