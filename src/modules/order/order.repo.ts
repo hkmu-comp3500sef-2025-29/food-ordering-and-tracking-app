@@ -67,8 +67,8 @@ function normalizeDishItem(input: OrderDishInput): OrderDishItem {
     const quantitySchema = z.number().int().positive().default(1);
     const qty = quantitySchema.parse(input.quantity ?? 1);
 
-    // status default 'placed'
-    const status = (input.status ?? "placed") as OrderDishStatus;
+    // status default 'confirmed'
+    const status = (input.status ?? "confirmed") as OrderDishStatus;
 
     // notes default ''
     const notes = (input.customer_notes ?? "").toString();
