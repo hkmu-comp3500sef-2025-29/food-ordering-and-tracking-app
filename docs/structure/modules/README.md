@@ -1,3 +1,5 @@
+[< Back](../README.md)
+
 # Modules (`src/modules`)
 
 This directory contains the core business logic modules organized by domain entities. Each module typically includes schema definitions and repository functions for database operations.

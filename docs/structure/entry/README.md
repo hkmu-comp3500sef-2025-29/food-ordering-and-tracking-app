@@ -1,3 +1,5 @@
+[< Back](../README.md)
+
 # Application Entry Point (`src/index.ts`)
 
 The main entry point that bootstraps and starts the Express application.

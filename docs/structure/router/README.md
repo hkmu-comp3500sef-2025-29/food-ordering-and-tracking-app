@@ -1,3 +1,5 @@
+[< Back](../README.md)
+
 # Router Module (`src/router`)
 
 This module organizes application routes, separating API endpoints from view rendering routes.
