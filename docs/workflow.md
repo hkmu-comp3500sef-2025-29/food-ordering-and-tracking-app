@@ -4,54 +4,54 @@
 
 This is the workflow document for the food ordering and tracking app.
 
-- [ ] Home Page
-    - [ ] A button to enter settings page
-    - [ ] A button to enter menu page
+- [x] Home Page
+    - [x] A button to enter settings page
+    - [x] A button to enter menu page
 
-- [ ] Navigation Bar (on all pages, except the home page)
-    - [ ] Top bar
-        - [ ] Display the restaurant name/image
-        - [ ] Display the table no
-        - [ ] A button to enter settings page
-    - [ ] Bottom Tab Bar
-      - [ ] Including the navigation button to different page (menu, cart, record)
+- [x] Navigation Bar (on all pages, except the home page)
+    - [x] Top bar
+        - [x] Display the restaurant name/image
+        - [x] Display the table no
+        - [x] A button to enter settings page
+    - [x] Bottom Tab Bar
+      - [x] Including the navigation button to different page (menu, cart, record)
 
-- [ ] Menu Page
-    - [ ] Menu items
-        - [ ] Redirect to product page on click
-    - [ ] A button to call the saff
+- [x] Menu Page
+    - [x] Menu items
+        - [x] Redirect to product page on click
+    - [x] A button to call the saff
 
-- [ ] Product page
-    - [ ] A button to go back
-    - [ ] Product details (image, title, description, price)
-    - [ ] Customization
-    - [ ] A set of buttons to select quantity
-    - [ ] Add to cart button
+- [x] Product page
+    - [x] A button to go back
+    - [x] Product details (image, title, description, price)
+    - [x] Customization
+    - [x] A set of buttons to select quantity
+    - [x] Add to cart button
 
-- [ ] Cart Page
-    - [ ] Summary of cart items (items details, price per item, total price)
-    - [ ] A button to place order
+- [x] Cart Page
+    - [x] Summary of cart items (items details, price per item, total price)
+    - [x] A button to place order
 
-- [ ] Record Page
-    - [ ] A summary of all the orders placed by the user (including the status of the order)
+- [x] Record Page
+    - [x] A summary of all the orders placed by the user (including the status of the order)
 
-- [ ] Settings Page
-    - [ ] A button to change language
-        - [ ] Show all languages directly or build a dropdown menu for it.
-        - [ ] Change language on click
-    - [ ] A button to go back
+- [x] Settings Page (implemented as sidebar component in cart.ejs)
+    - [x] A button to change language
+        - [x] Show all languages directly or build a dropdown menu for it.
+        - [x] Change language on click
+    - [x] A button to go back (close button)
 
-- [ ] Admin Page
-    - [ ] Require authentication before entering this page 
-    - [ ] A button to enter QR code generation page
-    - [ ] List of all active sessions 
+- [x] Admin Page
+    - [ ] Require authentication before entering this page (To Do)
+    - [x] A button to enter QR code generation page
+    - [x] List of all active sessions 
 
-- [ ] (Admin) QR Code Generation Page
-    - [ ] A input to enter the table no
-    - [ ] A button to generate qr code for the session
-    - [ ] A button to go back
+- [x] (Admin) QR Code Generation Page
+    - [x] A input to enter the table no
+    - [x] A button to generate qr code for the session
+    - [x] A button to go back
 
-- [ ] (Admin) Session Page
-    - [ ] A button to change the status of an order 
-    - [ ] A button to end the session 
-    - [ ] A button to go back
+- [ ] (Admin) Session Page (session detail page exists, but some functionality missing)
+    - [ ] A button to change the status of an order (To Do)
+    - [ ] A button to end the session (To Do)
+    - [x] A button to go back
