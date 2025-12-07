@@ -64,6 +64,10 @@ The root structure of the project is as follows:
 
 - **[Routers](./router/README.md)** - API endpoints and view routes
 
+- **[Client Scripts](./scripts/README.md)** - Client-side scripts for the application.
+
 - **[Utilities](./utils/README.md)** - HTTP error utilities and secure cookie management
+
+- **[Views](./views/README.md)** - EJS templates for rendering HTML
 
 - **[CI/CD](./cicd/README.md)** - GitHub Actions workflows for build, type checking, and Docker validation
